@@ -1,0 +1,24 @@
+# Datos personales: nunca se suben
+datos/
+*.privado.*
+*.local.json
+.env
+.env.*
+credenciales*.json
+token*.json
+
+# Páginas generadas con datos reales
+brief-*.html
+mi-dia-*.html
+radar-*.html
+salidas/
+
+# Dependencias y cachés
+node_modules/
+__pycache__/
+*.pyc
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini

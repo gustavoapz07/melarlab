@@ -1,0 +1,97 @@
+{
+  "fecha": "2027-01-18",
+  "generado": "PRUEBA DE DISEÑO · datos ficticios",
+  "nombre": "Gustavo",
+  "titular": "Cuatro bloques seguidos hasta las 3, Gustavo. La noche queda libre.",
+  "tipo_dia": "cargado",
+  "ubicacion": {
+    "nombre": "Tegucigalpa",
+    "lat": 14.11,
+    "lon": -87.2,
+    "tz": -6
+  },
+  "eventos_hoy": [
+    {
+      "inicio": "07:00",
+      "fin": "08:40",
+      "titulo": "Clase de prueba A",
+      "lugar": "Aula de prueba"
+    },
+    {
+      "inicio": "09:00",
+      "fin": "10:40",
+      "titulo": "Clase de prueba B",
+      "lugar": "Aula de prueba"
+    },
+    {
+      "inicio": "13:00",
+      "fin": "14:40",
+      "titulo": "Laboratorio de prueba"
+    },
+    {
+      "inicio": "14:00",
+      "fin": "15:00",
+      "titulo": "Reunión de prueba que se cruza",
+      "tentativo": true
+    },
+    {
+      "inicio": "19:00",
+      "fin": "20:00",
+      "titulo": "Evento nocturno de prueba",
+      "url": "https://example.com"
+    }
+  ],
+  "eventos_manana": [
+    {
+      "titulo": "Evento de todo el día de prueba"
+    },
+    {
+      "inicio": "08:00",
+      "fin": "09:00",
+      "titulo": "Evento de mañana de prueba"
+    }
+  ],
+  "atencion": [
+    {
+      "titulo": "Elemento de prueba con un título bastante largo para ver cómo se parte",
+      "url": "https://example.com",
+      "texto": "Texto de prueba para medir el largo de una línea con contenido realista de dos oraciones. Segunda oración de prueba.",
+      "fuente": "Gmail",
+      "cuando": "ayer"
+    },
+    {
+      "titulo": "Segundo elemento de prueba sin enlace",
+      "texto": "Texto corto de prueba.",
+      "fuente": "Calendar",
+      "cuando": "mañana 8 AM"
+    }
+  ],
+  "entregas": [
+    {
+      "fecha": "2027-01-20",
+      "titulo": "Entrega de prueba",
+      "curso": "Curso de prueba"
+    },
+    {
+      "fecha": "2027-01-22",
+      "titulo": "Examen de prueba",
+      "curso": "Curso de prueba",
+      "url": "https://example.com"
+    }
+  ],
+  "resuelto": [],
+  "ia": [
+    {
+      "titulo": "Novedad de prueba",
+      "url": "https://example.com",
+      "texto": "Texto de prueba.",
+      "letra_pequena": "Letra pequeña de prueba.",
+      "fuente": "example.com",
+      "cuando": "hoy"
+    }
+  ],
+  "idea": null,
+  "fuentes": [
+    "Datos ficticios de prueba"
+  ]
+}
