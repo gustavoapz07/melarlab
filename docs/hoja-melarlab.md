@@ -8,7 +8,8 @@ Mi Día, Agenda y Radar no tienen pestaña: leen Google Calendar, Gmail y la web
 - Una fila por registro. La fila 1 son los encabezados y no se cambian: los scripts los usan para encontrar cada columna.
 - Fechas en formato AAAA-MM-DD y horas en 24 h (23:30).
 - Montos en lempiras.
-- Las columnas con lista desplegable solo aceptan los valores de la lista.
+- Las columnas con lista desplegable solo aceptan los valores de la lista. Fechas, horas, números y enlaces también se validan, en modo estricto: lo que no cumple se rechaza.
+- La fila 1 de cada pestaña y la columna Horas dormidas tienen protección con advertencia: se pueden editar, pero Sheets avisa antes.
 - La pestaña Léeme explica cada pestaña con una fila de ejemplo. Los datos reales nunca llevan filas de ejemplo.
 
 ## Pestañas
@@ -43,7 +44,13 @@ Mi Día, Agenda y Radar no tienen pestaña: leen Google Calendar, Gmail y la web
 |---|---|---|---|---|---|
 | Fecha en que me desperté | Hora | Hora | Fórmula | 1 a 5 | Texto |
 
-Horas dormidas se calcula sola y cruza la medianoche: `MOD(Me desperté - Me dormí, 1) * 24`.
+Horas dormidas se calcula sola y cruza la medianoche. La fórmula vive en el encabezado (D1), así no se pierde si se borra u ordena la primera fila de datos:
+
+```
+={"Horas dormidas";ARRAYFORMULA(IF(LEN(B2:B)*LEN(C2:C),ROUND(MOD(C2:C-B2:B,1)*24,2),))}
+```
+
+Ningún script escribe en esa columna.
 
 ### Lista de deseos
 | Producto | Enlace | Precio (L) | Precio objetivo (L) | Prioridad | Estado | Agregado | Notas |
