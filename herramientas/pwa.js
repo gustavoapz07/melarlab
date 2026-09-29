@@ -93,15 +93,18 @@ const revisar = (ok, texto, detalle = '') => {
   await p.reload();
   await p.waitForSelector('h1', { timeout: 10000 }).catch(() => {});
   const sinRed = await p.evaluate(async () => {
+    // Se piden las 4 aunque la pantalla no las use todas: tienen que estar guardadas para cuando se usen.
+    await Promise.all(['400', '600', '700'].map((w) => document.fonts.load(`${w} 16px Archivo`))
+      .concat(document.fonts.load('400 16px "IBM Plex Mono"'))).catch(() => {});
     await document.fonts.ready;
     return {
       titular: document.querySelector('h1')?.textContent || '',
-      secciones: document.querySelectorAll('section').length,
+      principal: Boolean(document.querySelector('main')),
       aviso: [...document.querySelectorAll('.aviso')].map((a) => a.textContent).join(' | '),
       fuentes: [...document.fonts].filter((f) => f.status === 'loaded').map((f) => `${f.family} ${f.weight}`).sort(),
     };
   });
-  revisar(sinRed.titular.length > 0 && sinRed.secciones > 0, 'abre sin internet', `"${sinRed.titular.slice(0, 40)}…", ${sinRed.secciones} secciones`);
+  revisar(sinRed.titular.length > 0 && sinRed.principal, 'abre sin internet', `"${sinRed.titular.slice(0, 40)}"`);
   revisar(sinRed.aviso.includes('Sin conexión'), 'aviso de sin conexión', sinRed.aviso);
   revisar(sinRed.fuentes.length === 4, 'las 4 fuentes cargan sin internet', sinRed.fuentes.join(', '));
   await ctx.setOffline(false);

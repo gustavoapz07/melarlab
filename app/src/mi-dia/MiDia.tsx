@@ -127,9 +127,11 @@ interface Props {
   datos: DatosMiDia
   /** Avisos de la app (sin conexión, datos de ejemplo, instalar), al inicio del contenido. */
   avisos?: ReactNode
+  /** Cuenta y botón de cerrar sesión, en el pie. */
+  cuenta?: ReactNode
 }
 
-export function MiDia({ datos, avisos }: Props) {
+export function MiDia({ datos, avisos, cuenta }: Props) {
   const fecha = leerFecha(datos.fecha)
   const ubicacion = datos.ubicacion ?? UBICACION_EJEMPLO
   const { salida, puesta } = horasDelSol(fecha, ubicacion.lat, ubicacion.lon, ubicacion.tz)
@@ -216,6 +218,7 @@ export function MiDia({ datos, avisos }: Props) {
       <footer className="foot">
         <span>{[ubicacion.nombre, ...(datos.fuentes ?? [])].join(' · ')}</span>
         <span>{datos.generado ? `Generado ${datos.generado}` : ''}</span>
+        {cuenta && <div className="foot-cuenta">{cuenta}</div>}
       </footer>
     </div>
   )

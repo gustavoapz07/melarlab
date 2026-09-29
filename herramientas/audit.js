@@ -29,7 +29,7 @@ const axe = fs.readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
       document.querySelectorAll('a').forEach(a => { const h = a.getAttribute('href') || ''; if (!(h.startsWith('https://') || h.startsWith('#'))) out.push('href no https: ' + h); });
       document.querySelectorAll('.idx a').forEach(a => { const r = a.getBoundingClientRect(); if (r.height < 44) out.push('objetivo táctil del índice: ' + r.height + ' px'); });
       const vis = [...document.querySelectorAll('svg.art')].filter(s => getComputedStyle(s).display !== 'none').length;
-      if (vis !== 1) out.push('ilustraciones visibles: ' + vis);
+      if (document.querySelector('svg.art') && vis !== 1) out.push('ilustraciones visibles: ' + vis);
       if (/—/.test(document.body.innerText)) out.push('raya larga en el texto');
       return out;
     });

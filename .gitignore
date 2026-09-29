@@ -4,6 +4,7 @@ datos/
 *.local.json
 .env
 .env.*
+!.env.example
 credenciales*.json
 token*.json
 
