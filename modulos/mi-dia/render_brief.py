@@ -3,7 +3,7 @@
 Uso: python3 render_brief.py datos.json salida.html
 Solo librería estándar. Las fuentes se bajan de npm (@fontsource) y se incrustan en base64;
 si no hay red, cae a fuentes del sistema sin romper la página."""
-import base64, datetime as dt, html, json, math, os, subprocess, sys, tarfile, tempfile
+import base64, datetime as dt, html, json, math, os, shutil, subprocess, sys, tarfile, tempfile
 
 DIAS = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
 MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto",
@@ -20,13 +20,16 @@ FONTS = [("Archivo", "archivo", 400), ("Archivo", "archivo", 600), ("Archivo", "
 def font_css():
     cache = os.path.expanduser("~/.cache/brief-fonts"); os.makedirs(cache, exist_ok=True)
     css = []
+    # En Windows el ejecutable es npm.cmd y subprocess no lo encuentra con "npm" a secas.
+    # Si npm no existe, se deja "npm" para que falle igual que antes y salga el aviso.
+    npm = shutil.which("npm") or "npm"
     for fam, pkg, w in FONTS:
         name = f"{pkg}-latin-{w}-normal.woff2"
         fn = os.path.join(cache, name)
         if not os.path.exists(fn):
             try:
                 tmp = tempfile.mkdtemp()
-                r = subprocess.run(["npm", "pack", f"@fontsource/{pkg}", "--silent"], cwd=tmp,
+                r = subprocess.run([npm, "pack", f"@fontsource/{pkg}", "--silent"], cwd=tmp,
                                    capture_output=True, text=True, timeout=120)
                 tgz = r.stdout.strip().splitlines()[-1]
                 with tarfile.open(os.path.join(tmp, tgz)) as t:
