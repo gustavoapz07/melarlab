@@ -1,0 +1,116 @@
+/* Diseño de Mi Día (brief v2): blanco y negro, Archivo e IBM Plex Mono, claro y oscuro.
+   Base: el CSS de modulos/mi-dia/render_brief.py, más avisos y botones de la app. */
+:root{--bg:#fff;--ink:#0a0a0a;--ink2:#3d3d3d;--ink3:#6e6e6e;--ink4:#d0d0d0;--rule:#e6e6e6;--inv-bg:#0a0a0a;--inv-fg:#fff;--inv-2:#c9c9c9;
+--sans:"Archivo",-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;--mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#0b0b0b;--ink:#f4f4f4;--ink2:#c8c8c8;--ink3:#8f8f8f;--ink4:#3a3a3a;--rule:#262626;--inv-bg:#1a1a1a;--inv-fg:#f4f4f4;--inv-2:#bdbdbd;color-scheme:dark}}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--sans);-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.wrap{max-width:880px;margin:0 auto;padding:20px 24px 56px}
+.mast{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding-bottom:12px;border-bottom:1px solid var(--ink)}
+.brand{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;letter-spacing:-.01em;white-space:nowrap}
+.marca{width:18px;height:18px;flex:none;align-self:center}
+.d-short{display:none}
+.mono,.meta,.lbl,.idx,.sec-h,.when,.k,dt,.foot,.cap dt{font-family:var(--mono)}
+.date{font:400 12px/1.2 var(--mono);color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;text-align:right}
+h1{font-weight:700;font-size:clamp(34px,6.2vw,58px);line-height:1.02;letter-spacing:-.035em;margin:40px 0 8px;max-width:19ch;text-wrap:balance}
+figure{margin:24px 0 0}
+.art{display:block;width:100%;height:auto}
+.art-narrow{display:none}
+.s1{stroke:var(--ink)}.s3{stroke:var(--ink3)}.s4{stroke:var(--ink4)}.f1{fill:var(--ink)}.fbg{fill:var(--bg)}
+.lbl{font-size:11px;fill:var(--ink3);letter-spacing:.02em}
+.cap{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--rule);margin-top:4px}
+.cap div{padding:10px 12px 0 0}
+.cap dt{font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em}
+.cap dd{font-size:15px;font-weight:600;margin-top:2px}
+.idx{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);margin:36px 0 0;border-top:1px solid var(--ink);border-bottom:1px solid var(--rule);list-style:none}
+.idx a{display:block;text-decoration:none;padding:12px 12px 12px 0;min-height:44px}
+.idx b{display:block;font:700 28px/1 var(--sans);letter-spacing:-.02em}
+.idx span{display:block;font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin-top:6px;overflow-wrap:anywhere}
+.idx a:hover span{color:var(--ink)}
+section{margin-top:48px;scroll-margin-top:16px}
+.sec-h{display:flex;align-items:baseline;gap:12px;font-size:12px;font-weight:400;text-transform:uppercase;letter-spacing:.08em;border-top:1px solid var(--ink);padding-top:10px;margin-bottom:6px}
+.sec-h .c{margin-left:auto;color:var(--ink3)}
+.sec-h .i{color:var(--ink3)}
+.items{list-style:none}
+.items li{display:grid;grid-template-columns:36px 1fr;gap:0 8px;padding:18px 0;border-bottom:1px solid var(--rule)}
+.items li:last-child{border-bottom:0}
+#resuelto .t{font-size:17px}#resuelto .x{font-size:15px}
+.n{font:400 12px/1.9 var(--mono);color:var(--ink3)}
+.t{display:inline;font-weight:600;font-size:19px;line-height:1.3;letter-spacing:-.012em;text-decoration:none;color:var(--ink)}
+a.t:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+.ext{display:inline-block;width:.55em;height:.55em;margin-left:.3em;vertical-align:.18em;opacity:.55}
+.x{color:var(--ink2);margin-top:6px;max-width:64ch}
+.note{color:var(--ink2);margin-top:8px;max-width:64ch;font-size:15px}
+.k{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);margin-right:6px}
+.meta{font-size:12px;color:var(--ink3);margin-top:10px;letter-spacing:.02em}
+.attn{background:var(--inv-bg);color:var(--inv-fg);padding:4px 24px;margin:40px -24px 0}
+.attn .sec-h{border-top-color:var(--inv-fg);margin-top:20px}
+.attn .sec-h .c,.attn .sec-h .i,.attn .n,.attn .meta,.attn .k{color:var(--inv-2)}
+.attn .t{color:var(--inv-fg);font-size:22px}
+.attn .x,.attn .note{color:var(--inv-fg);opacity:.86}
+.attn .items li{border-color:rgba(255,255,255,.18)}
+.attn .items{padding-bottom:10px}
+.attn :focus-visible{outline-color:var(--inv-fg)}
+.agenda{list-style:none}
+.agenda li{display:grid;grid-template-columns:150px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule)}
+.agenda li:last-child{border-bottom:0}
+.when{font-size:13px;color:var(--ink2);padding-top:3px}
+.agenda .t{font-size:17px}
+.where{display:block;color:var(--ink3);font-size:14px;margin-top:2px}
+.tent{font:400 11px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);margin-left:8px}
+.sub{font:400 12px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--ink3);margin:22px 0 2px}
+.quiet{color:var(--ink2);padding:16px 0 4px;font-size:17px}
+.idea{padding:18px 0 0}
+.idea-t{font-weight:700;font-size:26px;line-height:1.15;letter-spacing:-.025em;max-width:32ch}
+.idea dl{display:grid;grid-template-columns:120px 1fr;margin-top:16px;border-top:1px solid var(--rule)}
+.idea dt,.idea dd{padding:10px 0;border-bottom:1px solid var(--rule)}
+.idea dt{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);padding-top:13px}
+.idea dd{color:var(--ink2)}
+.foot{margin-top:56px;padding-top:12px;border-top:1px solid var(--ink);font-size:11px;color:var(--ink3);letter-spacing:.04em;text-transform:uppercase;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px}
+
+/* ---------- app: avisos, botones y aviso flotante ---------- */
+.aviso{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 16px;padding:8px 0;border-bottom:1px solid var(--rule);
+ font:400 12px/1.45 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--ink3)}
+.aviso-fuerte{color:var(--ink);border-bottom-color:var(--ink)}
+.aviso .acc{display:flex;gap:8px;margin-left:auto}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 14px;background:none;border:1px solid currentColor;
+ font:400 12px/1 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--ink);cursor:pointer}
+.btn:hover{background:var(--ink);color:var(--bg)}
+.btn-q{border-color:transparent;text-decoration:underline;text-underline-offset:3px;padding:0 8px}
+.btn-q:hover{background:none;color:var(--ink);text-decoration-thickness:2px}
+.toast-zona{position:fixed;left:0;right:0;bottom:0;padding:0 16px calc(16px + env(safe-area-inset-bottom));pointer-events:none;z-index:10}
+.toast{pointer-events:auto;max-width:560px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 16px;
+ padding:8px 8px 8px 16px;background:var(--inv-bg);color:var(--inv-fg);border:1px solid var(--inv-fg)} /* el borde lo separa del bloque de atención */
+.toast p{font-size:15px}
+.toast .acc{display:flex;gap:4px;margin-left:auto}
+.toast .btn{color:var(--inv-fg)}
+.toast .btn:hover{background:var(--inv-fg);color:var(--inv-bg)}
+.toast .btn-q:hover{background:none;color:var(--inv-fg)}
+.toast :focus-visible{outline-color:var(--inv-fg)}
+
+@media (max-width:640px){
+ .wrap{padding:16px 16px 40px}
+ h1{margin-top:28px}
+ .art-wide{display:none}.art-narrow{display:block}
+ .cap{grid-template-columns:1fr 1fr}
+ .idx b{font-size:24px}
+ .idx span{font-size:10px;letter-spacing:.03em}
+ .idx a{padding-right:6px}
+ .d-long{display:none}.d-short{display:inline}
+ .attn{padding:4px 16px;margin:32px -16px 0}
+ section{margin-top:40px}
+ #resuelto .t{font-size:16px}
+ .attn .t{font-size:20px}
+ .items li{grid-template-columns:28px 1fr}
+ .t{font-size:18px}
+ .agenda li{grid-template-columns:92px 1fr;gap:10px}
+ .when{font-size:12px}
+ .agenda .t{font-size:16px}
+ .idea dl{grid-template-columns:1fr}.idea dt{border-bottom:0;padding-bottom:0}.idea dd{padding-top:2px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}

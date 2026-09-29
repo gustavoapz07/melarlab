@@ -5,7 +5,9 @@
   "license": "MIT",
   "scripts": {
     "auditar": "node herramientas/audit.js",
-    "capturas": "node herramientas/shot.js"
+    "capturas": "node herramientas/shot.js",
+    "iconos": "node herramientas/iconos.js",
+    "pwa": "node herramientas/pwa.js"
   },
   "devDependencies": {
     "axe-core": "^4.13.0",

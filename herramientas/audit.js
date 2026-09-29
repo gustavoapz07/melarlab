@@ -1,4 +1,4 @@
-// Uso: node herramientas/audit.js pagina.html
+// Uso: node herramientas/audit.js pagina.html  (o una dirección: http://localhost:4173)
 // axe-core (WCAG 2.1 AA y buenas prácticas) en claro y oscuro, a 390 y 1280 px, más chequeos propios.
 // Si Chromium no está donde lo espera Playwright, indica la ruta con CHROMIUM_PATH.
 const fs = require('fs');
@@ -7,16 +7,19 @@ const { chromium } = require('playwright');
 const axe = fs.readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
 
 (async () => {
-  const file = path.resolve(process.argv[2] || '');
-  if (!process.argv[2] || !fs.existsSync(file)) {
-    console.error('Uso: node herramientas/audit.js pagina.html');
+  const objetivo = process.argv[2] || '';
+  const esUrl = /^https?:\/\//.test(objetivo);
+  const file = path.resolve(objetivo);
+  if (!objetivo || (!esUrl && !fs.existsSync(file))) {
+    console.error('Uso: node herramientas/audit.js pagina.html  (o una dirección http)');
     process.exit(2);
   }
   const b = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
   let fail = 0;
   for (const [w, scheme] of [[390, 'light'], [390, 'dark'], [1280, 'light'], [1280, 'dark']]) {
     const p = await b.newPage({ viewport: { width: w, height: 900 }, colorScheme: scheme });
-    await p.goto('file://' + file);
+    await p.goto(esUrl ? objetivo : 'file://' + file);
+    await p.waitForSelector('h1');
     await p.waitForTimeout(300);
     await p.addScriptTag({ content: axe });
     const r = await p.evaluate(async () => await axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa', 'best-practice'] } }));

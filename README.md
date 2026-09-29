@@ -40,6 +40,7 @@ Detalle de cada uno en [docs/modulos.md](docs/modulos.md) y el orden en que se c
 
 ```
 melarlab/
+├── app/                 la app para celular (PWA): Mi Día, instalable y sin internet
 ├── modulos/
 │   ├── mi-dia/          render_brief.py, prompt de ejemplo y datos de prueba
 │   └── radar/           prompt de ejemplo
