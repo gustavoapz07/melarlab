@@ -2,7 +2,7 @@
 
 La app para celular de MelarLab. Es una app web instalable (PWA): se instala desde el navegador en Android y en iPhone, queda en la pantalla de inicio y funciona sin internet.
 
-Por ahora tiene cuentas (entrar, crear cuenta, recuperar la contraseña y cerrar sesión, con Supabase Auth) y muestra **Mi Día** con los datos ficticios de [`modulos/mi-dia/ejemplos/dia-cargado.json`](../modulos/mi-dia/ejemplos/dia-cargado.json). La base de datos y Mi Día con datos reales llegan en los siguientes pasos de la [hoja de ruta](../docs/hoja-de-ruta.md).
+Por ahora tiene cuentas (entrar, crear cuenta, recuperar la contraseña y cerrar sesión, con Supabase Auth) y muestra **Mi Día** con los datos ficticios de [`modulos/mi-dia/ejemplos/dia-cargado.json`](../modulos/mi-dia/ejemplos/dia-cargado.json). La base de datos ya tiene una tabla por módulo con RLS ([docs/base-de-datos.md](../docs/base-de-datos.md)); las pantallas que la usan y Mi Día con datos reales llegan en los siguientes pasos de la [hoja de ruta](../docs/hoja-de-ruta.md).
 
 ![Mi Día en la app, en el celular](../docs/capturas/app-mi-dia-390-light.png)
 
@@ -14,7 +14,7 @@ Por ahora tiene cuentas (entrar, crear cuenta, recuperar la contraseña y cerrar
 | Instalable y sin internet | [`vite-plugin-pwa`](https://vite-pwa-org.netlify.app/) con Workbox: manifiesto, íconos y service worker que guarda la app completa en el celular |
 | Fuentes | Archivo e IBM Plex Mono desde `@fontsource`, solo el subconjunto latino, guardadas junto con la app |
 | Cuentas | Supabase Auth con correo y contraseña (`@supabase/supabase-js`) |
-| Datos (próximo paso) | Supabase: Postgres con RLS |
+| Datos | Supabase: Postgres, una tabla por módulo con RLS ([docs/base-de-datos.md](../docs/base-de-datos.md)) |
 | Hosting (próximo paso) | Cloudflare Pages |
 
 ## Estructura
@@ -29,6 +29,7 @@ app/
     ├── App.tsx             qué pantalla toca según la sesión
     ├── cuenta/
     │   ├── supabase.ts     cliente de Supabase (solo la clave publicable)
+    │   ├── base-de-datos.ts  tipos de las tablas (generado)
     │   ├── useSesion.ts    estado de la sesión, también sin internet
     │   ├── Entrada.tsx     entrar, crear cuenta, recuperar y elegir contraseña nueva
     │   └── mensajes.ts     errores de Supabase en español

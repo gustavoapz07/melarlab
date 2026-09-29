@@ -1,6 +1,7 @@
 // Cliente de Supabase. Solo lleva la clave publicable, que está hecha para ir en el navegador:
 // lo que cada usuario puede ver o cambiar lo deciden las reglas (RLS) de la base.
 import { createClient } from '@supabase/supabase-js'
+import type { Database } from './base-de-datos.ts'
 
 const url = import.meta.env.VITE_SUPABASE_URL
 const clave = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
@@ -25,7 +26,7 @@ function leerErrorDelEnlace(): string | null {
 
 export const errorDelEnlace = leerErrorDelEnlace()
 
-export const supabase = createClient(url ?? 'https://sin-configurar.invalid', clave ?? 'sin-configurar', {
+export const supabase = createClient<Database>(url ?? 'https://sin-configurar.invalid', clave ?? 'sin-configurar', {
   auth: {
     // Flujo "implícito": el enlace del correo funciona aunque se abra en otro navegador
     // (en iPhone, la app instalada y Safari no comparten lo guardado).
