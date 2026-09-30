@@ -125,13 +125,17 @@ interface Seccion {
 
 interface Props {
   datos: DatosMiDia
-  /** Avisos de la app (sin conexión, datos de ejemplo, instalar), al inicio del contenido. */
+  /** Avisos de la app (sin conexión, otro día, instalar), al inicio del contenido. */
   avisos?: ReactNode
+  /** Navegación entre módulos, debajo del encabezado. */
+  nav?: ReactNode
+  /** Pendientes atrasados y de hoy (del módulo Pendientes, en vivo), con un enlace a la lista completa. */
+  pendientes?: { lista: Elemento[]; enlace: ReactNode }
   /** Cuenta y botón de cerrar sesión, en el pie. */
   cuenta?: ReactNode
 }
 
-export function MiDia({ datos, avisos, cuenta }: Props) {
+export function MiDia({ datos, avisos, nav, pendientes, cuenta }: Props) {
   const fecha = leerFecha(datos.fecha)
   const ubicacion = datos.ubicacion ?? UBICACION_EJEMPLO
   const { salida, puesta } = horasDelSol(fecha, ubicacion.lat, ubicacion.lon, ubicacion.tz)
@@ -149,6 +153,12 @@ export function MiDia({ datos, avisos, cuenta }: Props) {
     },
     { id: 'agenda', etiqueta: 'Agenda', titulo: 'Agenda', cuenta: hoy.length, contenido: <Agenda hoy={hoy} manana={manana} fecha={fecha} /> },
   ]
+  if (pendientes?.lista.length) {
+    secciones.splice(1, 0, {
+      id: 'pendientes', etiqueta: 'Pendientes', titulo: 'Pendientes de hoy', cuenta: pendientes.lista.length,
+      contenido: <><Items lista={pendientes.lista} extra={false} /><p className="ver-mas">{pendientes.enlace}</p></>,
+    })
+  }
   if (datos.entregas?.length) {
     secciones.push({ id: 'entregas', etiqueta: 'Entregas', titulo: 'Entregas de la U · próximos 7 días', cuenta: datos.entregas.length, contenido: <Entregas lista={datos.entregas} /> })
   }
@@ -182,9 +192,10 @@ export function MiDia({ datos, avisos, cuenta }: Props) {
           <span className="d-short">{fechaCorta} · </span>Sem {semanaISO(fecha)}
         </span>
       </header>
+      {nav}
       <main>
         {avisos}
-        <h1>{datos.titular}</h1>
+        <h1 tabIndex={-1}>{datos.titular}</h1>
         <figure>
           <div role="img" aria-label={alt}>
             <Amanecer fecha={fecha} ubicacion={ubicacion} eventos={hoy} variante="wide" />

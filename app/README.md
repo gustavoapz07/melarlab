@@ -2,7 +2,12 @@
 
 La app para celular de MelarLab. Es una app web instalable (PWA): se instala desde el navegador en Android y en iPhone, queda en la pantalla de inicio y funciona sin internet.
 
-Por ahora tiene cuentas (entrar, crear cuenta, recuperar la contraseña y cerrar sesión, con Supabase Auth) y muestra **Mi Día** con los datos reales de cada mañana: una rutina de Claude Code lo publica en la tabla `mi_dia` de Supabase de lunes a viernes a las 5:50 AM ([docs/base-de-datos.md](../docs/base-de-datos.md#mi-día)). Las pantallas de los demás módulos llegan en los siguientes pasos de la [hoja de ruta](../docs/hoja-de-ruta.md).
+Por ahora tiene cuentas (entrar, crear cuenta, recuperar la contraseña y cerrar sesión, con Supabase Auth) y dos pantallas:
+
+- **Mi Día**, con los datos reales de cada mañana: una rutina de Claude Code lo publica en la tabla `mi_dia` de Supabase de lunes a viernes a las 5:50 AM ([docs/base-de-datos.md](../docs/base-de-datos.md#mi-día)). También muestra los pendientes atrasados y de hoy.
+- **Pendientes** (`/pendientes`): agregar en segundos, marcar como hecho, editar y borrar, agrupados en atrasados, hoy, próximos y sin fecha.
+
+Las pantallas de los demás módulos llegan en los siguientes pasos de la [hoja de ruta](../docs/hoja-de-ruta.md).
 
 ![Mi Día en la app, en el celular](../docs/capturas/app-mi-dia-390-light.png)
 
@@ -28,7 +33,11 @@ app/
 ├── public/                 favicon e íconos (se generan con npm run iconos, desde la raíz)
 └── src/
     ├── main.tsx            arranque y fuentes
-    ├── App.tsx             qué pantalla toca según la sesión
+    ├── App.tsx             qué pantalla toca según la sesión y la dirección
+    ├── rutas.ts            direcciones de la app (/ y /pendientes) y el foco al cambiar de pantalla
+    ├── navegacion.tsx      barra de módulos y enlaces entre pantallas
+    ├── Marco.tsx           encabezado, barra y pie de las pantallas que no son Mi Día
+    ├── guardado.ts         copias en el celular para ver sin internet; cerrar sesión las borra
     ├── cuenta/
     │   ├── supabase.ts     cliente de Supabase (solo la clave publicable)
     │   ├── base-de-datos.ts  tipos de las tablas (generado)
@@ -44,6 +53,9 @@ app/
     │   ├── tipos.ts        forma del JSON de Mi Día
     │   ├── useMiDia.ts     trae el Mi Día más reciente de Supabase y guarda una copia para verlo sin internet
     │   └── normalizar.ts   descarta lo que no se puede dibujar, para que un dato raro no rompa la pantalla
+    ├── pendientes/
+    │   ├── usePendientes.ts   leer, agregar, cambiar y borrar en la tabla pendientes; grupos por fecha
+    │   └── Pendientes.tsx     la pantalla: agregar, lista por grupos, editar y borrar
     └── pwa/
         ├── AvisoActualizacion.tsx   "Lista para usar sin internet" y "Hay una versión nueva"
         ├── Instalar.tsx             botón de instalar (Android) o instrucciones (iPhone)
@@ -97,6 +109,7 @@ Pruebas, desde la raíz del repositorio y con `npm run preview` corriendo:
 npm run pwa -- http://localhost:4173        # cabeceras de seguridad, instalable, sin internet, avisos de Android y iPhone
 npm run cuentas -- http://localhost:4173    # entrar, crear cuenta, recuperar, cerrar sesión y sin internet
 npm run mi-dia -- http://localhost:4173     # Mi Día de hoy, de otro día, todavía ninguno, errores, sin internet y datos raros
+npm run pendientes -- http://localhost:4173 # agregar, grupos, hecho, editar, borrar, errores, sin internet, Mi Día y navegación
 npm run auditar -- http://localhost:4173    # accesibilidad WCAG 2.1 AA en claro y oscuro, a 390 y 1280 px
 npm run capturas -- http://localhost:4173 docs/capturas/app
 ```
@@ -112,6 +125,9 @@ Si Playwright no encuentra Chromium, se le indica el navegador instalado con `CH
 - **Flujo implícito de Supabase.** Los enlaces de confirmar y de recuperar funcionan aunque se abran en otro navegador.
 - **Sin internet se sigue viendo Mi Día.** Si hay una sesión guardada, la app no espera a que Supabase renueve el permiso; lo renueva sola al volver la red.
 - **Mi Día real, con copia en el celular.** La app pide el Mi Día más reciente (las reglas de la base solo le dan el suyo a cada usuario) y guarda una copia para abrirlo sin internet. Vuelve a consultar al abrir la app y al volver la red. Si el más reciente es de otro día (fin de semana o antes de las 5:50), lo dice. Cerrar sesión borra la copia.
+- **Pendientes: para escribir hace falta internet.** Sin red se ve la última lista guardada, pero agregar, marcar y editar se desactivan. Así no hay cambios guardados a medias que después choquen con la base.
+- **Marcar como hecho se ve al instante.** Si la base no lo acepta, el pendiente vuelve a como estaba y un aviso lo dice arriba de la lista.
+- **Direcciones reales.** Mi Día es `/` y Pendientes `/pendientes`: el botón de atrás funciona y, al cambiar de pantalla, el foco va al título para que un lector de pantalla lo anuncie.
 - **Los datos de Mi Día se revisan antes de dibujarlos.** Lo que no tiene lo mínimo (un título, una hora que existe) se descarta, y el texto nunca se interpreta como HTML.
 - **Mensajes sin detalles internos.** Los errores de Supabase se muestran en español y cortos; crear cuenta y recuperar la contraseña no revelan si un correo ya está registrado.
 - **Política de contenido estricta.** Sin scripts ni estilos en línea y sin conexiones a otros dominios. Si algún día se cuela contenido ajeno (un correo, un evento), el navegador no lo ejecuta ni manda datos afuera.

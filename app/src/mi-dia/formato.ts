@@ -46,6 +46,12 @@ export function fechaEnPalabras(iso: string): string {
   return `${DIAS[diaSemana(f)]} ${f.d} de ${MESES[f.m - 1]}`
 }
 
+/** "2026-09-30" más n días, como "AAAA-MM-DD". */
+export function sumarDiasISO(iso: string, n: number): string {
+  const f = sumarDias(leerFecha(iso), n)
+  return `${f.y}-${String(f.m).padStart(2, '0')}-${String(f.d).padStart(2, '0')}`
+}
+
 /** La fecha de hoy según el reloj del celular, como "AAAA-MM-DD". */
 export function hoyEnElCelular(ahora = new Date()): string {
   const dos = (n: number) => String(n).padStart(2, '0')

@@ -27,7 +27,7 @@ Meta: una app vacía pero real, instalada en los dos celulares, con cuentas y la
 - [ ] Agenda: resumen de la semana y preparación de cada reunión dentro de Mi Día.
 
 ## Fase C · Pendientes y Estudios
-- [ ] Pendientes: agregar, marcar como hecho y fecha límite; los de hoy salen en Mi Día.
+- [x] Pendientes: agregar, marcar como hecho y fecha límite; los de hoy salen en Mi Día.
 - [ ] Estudios: plan de estudios con el estado de cada materia y el avance de la carrera.
 - [ ] Calendario de la universidad (Canvas) suscrito en Google Calendar.
 

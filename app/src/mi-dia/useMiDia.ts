@@ -3,6 +3,7 @@
 // Se guarda una copia en el celular para abrir Mi Día sin internet; se borra al cerrar sesión.
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase } from '../cuenta/supabase.ts'
+import { PREFIJOS, guardar, leerGuardado } from '../guardado.ts'
 import { normalizar } from './normalizar.ts'
 import type { DatosMiDia } from './tipos.ts'
 
@@ -15,43 +16,16 @@ export type EstadoMiDia =
   /** No se pudo cargar y no hay copia guardada. */
   | { tipo: 'error' }
 
-const PREFIJO = 'melarlab.mi-dia.'
 /** Volver a consultar al abrir la app, pero no más de una vez por minuto. */
 const ESPERA_MINIMA = 60_000
 /** Sin respuesta en este tiempo, la consulta se da por fallida y se sigue con la copia guardada. */
 const LIMITE_CONSULTA = 15_000
 
-function leerGuardado(usuario: string): DatosMiDia | null {
-  try {
-    return normalizar(JSON.parse(localStorage.getItem(PREFIJO + usuario) ?? 'null'))
-  } catch {
-    return null
-  }
-}
-
-function guardar(usuario: string, datos: DatosMiDia | null) {
-  try {
-    if (datos) localStorage.setItem(PREFIJO + usuario, JSON.stringify(datos))
-    else localStorage.removeItem(PREFIJO + usuario)
-  } catch {
-    // Sin almacenamiento: Mi Día se ve igual, solo que no queda para abrirlo sin internet.
-  }
-}
-
-/** Borra del celular todos los Mi Día guardados. Se llama al cerrar sesión. */
-export function borrarMiDiaGuardado() {
-  try {
-    for (const clave of Object.keys(localStorage)) {
-      if (clave.startsWith(PREFIJO)) localStorage.removeItem(clave)
-    }
-  } catch {
-    // Sin almacenamiento: no hay nada guardado que borrar.
-  }
-}
 
 export function useMiDia(usuario: string): { estado: EstadoMiDia; recargar: () => void } {
+  const clave = PREFIJOS.miDia + usuario
   const [estado, setEstado] = useState<EstadoMiDia>(() => {
-    const guardado = leerGuardado(usuario)
+    const guardado = normalizar(leerGuardado(clave))
     if (guardado) return { tipo: 'listo', datos: guardado, fallo: false }
     return navigator.onLine ? { tipo: 'cargando' } : { tipo: 'error' }
   })
@@ -69,14 +43,14 @@ export function useMiDia(usuario: string): { estado: EstadoMiDia; recargar: () =
       .maybeSingle()
     if (error) return fallar()
     if (!data) {
-      guardar(usuario, null)
+      guardar(clave, null)
       return setEstado({ tipo: 'vacio' })
     }
     const datos = normalizar(data.datos)
     if (!datos) return fallar()
-    guardar(usuario, datos)
+    guardar(clave, datos)
     setEstado({ tipo: 'listo', datos, fallo: false })
-  }, [usuario])
+  }, [clave])
 
   useEffect(() => {
     // Sin red no se consulta: Supabase se quedaría reintentando renovar el permiso. Se consulta al volver la red.

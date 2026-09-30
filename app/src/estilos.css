@@ -121,6 +121,57 @@ a.t:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-th
 /* Pantallas cortas (sin Mi Día todavía, error): el pie solo lleva la cuenta, sin la segunda línea. */
 .foot > .foot-cuenta:only-child{border-top:0;margin-top:0;padding-top:0}
 
+/* ---------- navegación entre módulos ---------- */
+.modulos{display:flex;flex-wrap:wrap;gap:0 24px;border-bottom:1px solid var(--rule)}
+.modulos a{display:inline-flex;align-items:center;min-height:44px;font:400 12px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;
+ color:var(--ink3);text-decoration:none;border-bottom:2px solid transparent;margin-bottom:-1px}
+.modulos a:hover{color:var(--ink)}
+.modulos a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--ink)}
+main h1:focus{outline:none}
+.ver-mas{padding-top:4px;font:400 12px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em}
+.ver-mas a{display:inline-flex;align-items:center;min-height:44px;text-underline-offset:3px}
+
+/* ---------- pendientes ---------- */
+.agregar{display:grid;gap:8px;max-width:640px;margin-top:24px}
+.btn:disabled{cursor:not-allowed;opacity:.55}
+.btn-lleno,.con-boton .btn-lleno{background:var(--ink);color:var(--bg);border-color:var(--ink);text-decoration:none}
+.btn-lleno:hover,.con-boton .btn-lleno:hover{background:var(--ink2);border-color:var(--ink2);color:var(--bg)}
+.mas summary{display:inline-flex;align-items:center;min-height:44px;cursor:pointer;font:400 12px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--ink2)}
+.mas summary:hover{color:var(--ink)}
+.mas summary::after{content:"+";margin-left:8px;font-size:15px}
+.mas[open] > summary::after{content:"−"}
+.mas summary::-webkit-details-marker{display:none}
+.fila{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin:4px 0 8px}
+.campo select,.campo textarea{width:100%;min-height:48px;padding:10px 12px;border:1px solid var(--ink3);border-radius:0;background:var(--bg);color:var(--ink);font:400 17px/1.3 var(--sans)}
+.campo textarea{resize:vertical;min-height:88px}
+.campo select:focus-visible,.campo textarea:focus-visible{outline:2px solid var(--ink);outline-offset:-1px;border-color:var(--ink)}
+.campo input:disabled{opacity:.55;cursor:not-allowed}
+.atajos{display:flex;flex-wrap:wrap;gap:0 4px;margin-top:4px}
+.atajos .btn[aria-pressed="true"]{background:var(--ink);color:var(--bg);text-decoration:none}
+.pend-lista{list-style:none}
+.pend{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:start;gap:0 8px;padding:10px 0;border-bottom:1px solid var(--rule)}
+.pend:last-child{border-bottom:0}
+.pend input[type="checkbox"]{-webkit-appearance:none;appearance:none;width:26px;height:26px;margin:9px;border:1.5px solid var(--ink);border-radius:0;
+ background:var(--bg) center/18px no-repeat;cursor:pointer}
+.pend input[type="checkbox"]:checked{background-color:var(--ink);
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3 3 7-7' fill='none' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E")}
+.pend input[type="checkbox"]:disabled{cursor:not-allowed;opacity:.5}
+.pend-cuerpo{padding-top:9px}
+.pend-t{font-weight:600;font-size:18px;line-height:1.35;letter-spacing:-.01em;cursor:pointer;overflow-wrap:anywhere}
+.pend .x{font-size:15px;margin-top:4px}
+.pend .meta{margin-top:6px}
+.pend > .btn{margin-top:2px}
+.pend.hecho .pend-t{text-decoration:line-through;text-decoration-thickness:1px;color:var(--ink3)}
+.pend.editando{display:block;padding:16px 0}
+.editor{display:grid;gap:16px}
+.acciones{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.acciones .borrar,.confirmar{margin-left:auto}
+.confirmar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:15px}
+@media (prefers-color-scheme:dark){
+ .pend input[type="checkbox"]:checked{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3 3 7-7' fill='none' stroke='%230b0b0b' stroke-width='2'/%3E%3C/svg%3E")}
+}
+
 @media (max-width:640px){
  .wrap{padding:16px 16px 40px}
  h1{margin-top:28px}

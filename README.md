@@ -8,14 +8,14 @@ Mi sistema de automatizaciones para tener más orden en la vida. Lema: *vida con
 
 - **Mi Día:** cada mañana, de lunes a viernes, una página con la agenda de hoy, lo que necesita mi atención, las entregas de la U y un par de novedades de IA. Se genera sola en la nube y me llega un aviso al celular.
 - **Radar:** cada domingo, un resumen de lo más útil que pasó en IA esa semana, verificado en su fuente.
-- **La app para celular** (en construcción): se instala desde el navegador en Android y en iPhone, pide cuenta y funciona sin internet. Ya muestra el Mi Día real de cada mañana; los demás módulos llegan como pantallas de la app. Detalle en [app/README.md](app/README.md).
+- **La app para celular** (en construcción): se instala desde el navegador en Android y en iPhone, pide cuenta y funciona sin internet. Ya muestra el Mi Día real de cada mañana y la lista de Pendientes; los demás módulos llegan como pantallas de la app. Detalle en [app/README.md](app/README.md).
 
 ## Módulos
 
 | Área | Módulo | Qué hace | Estado |
 |---|---|---|---|
 | Organización | Mi Día | Resumen de cada mañana con lo de hoy de todos los módulos | Activo |
-| | Pendientes | Cosas por hacer con fecha límite | Planeado |
+| | Pendientes | Cosas por hacer con fecha límite | Activo |
 | | Agenda | Reuniones y eventos; preparación antes de cada reunión | Planeado |
 | Aprendizaje | Radar | Contenido relevante sobre mis temas | Activo |
 | | Estudios | Plan de estudios, clases, exámenes y avance de la carrera | Planeado |
