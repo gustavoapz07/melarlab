@@ -21,7 +21,7 @@ const axe = fs.readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
     await p.goto(esUrl ? objetivo : 'file://' + file);
     await p.waitForSelector('h1');
     await p.waitForTimeout(300);
-    await p.addScriptTag({ content: axe });
+    await p.evaluate(axe); // evaluate y no addScriptTag: la CSP de la app bloquea scripts en línea
     const r = await p.evaluate(async () => await axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa', 'best-practice'] } }));
     const own = await p.evaluate(() => {
       const out = [];

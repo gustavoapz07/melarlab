@@ -1,6 +1,7 @@
 // Uso: node herramientas/pwa.js http://localhost:4173
 // Prueba la app ya compilada (npm run build y npm run preview dentro de app/):
-// que se pueda instalar, que funcione sin internet y que los avisos de instalación salgan en Android y iPhone.
+// las cabeceras de seguridad, que se pueda instalar, que funcione sin internet y que los avisos de instalación
+// salgan en Android y iPhone.
 // Si Chromium no está donde lo espera Playwright, indica la ruta con CHROMIUM_PATH.
 const fs = require('fs');
 const os = require('os');
@@ -24,13 +25,27 @@ const revisar = (ok, texto, detalle = '') => {
   const opciones = process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {};
   const b = await chromium.launch(opciones);
 
-  // 1. Instalable: manifiesto, íconos y service worker.
   // Perfil normal y temporal: en incógnito Chrome nunca ofrece instalar.
   const perfil = fs.mkdtempSync(path.join(os.tmpdir(), 'melarlab-pwa-'));
   const ctx = await chromium.launchPersistentContext(perfil, { ...opciones, viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
   const p = ctx.pages()[0] || await ctx.newPage();
-  await p.goto(url);
+  // Todo lo que la política de seguridad (CSP) bloquee sale como error en la consola.
+  const bloqueos = [];
+  p.on('console', (m) => { if (m.type() === 'error' && /Content Security Policy/i.test(m.text())) bloqueos.push(m.text()); });
+  const respuesta = await p.goto(url);
   await p.waitForSelector('h1');
+
+  // 0. Cabeceras de seguridad (npm run preview pone las mismas que Cloudflare lee de dist/_headers).
+  const cab = respuesta.headers();
+  const csp = cab['content-security-policy'] || '';
+  revisar(/script-src 'self'(;|$)/.test(csp) && csp.includes("frame-ancestors 'none'") && csp.includes("object-src 'none'"),
+    'política de seguridad (CSP): solo scripts propios, sin marcos ni plugins', csp ? '' : 'sin cabecera');
+  const conexiones = (csp.match(/connect-src ([^;]+)/) || [])[1] || '';
+  revisar(/https:\/\/[a-z0-9-]+\.supabase\.co/.test(conexiones) && !conexiones.includes('*'), 'CSP: solo se conecta con el proyecto de Supabase', conexiones);
+  revisar(cab['x-frame-options'] === 'DENY' && cab['referrer-policy'] === 'no-referrer' && Boolean(cab['permissions-policy']),
+    'X-Frame-Options, Referrer-Policy y Permissions-Policy');
+
+  // 1. Instalable: manifiesto, íconos y service worker.
   const sw = await p.evaluate(async () => {
     const reg = await navigator.serviceWorker.ready;
     return { activo: Boolean(reg.active), alcance: reg.scope };
@@ -41,7 +56,7 @@ const revisar = (ok, texto, detalle = '') => {
     () => revisar(false, 'aviso "Lista para usar sin internet"', 'no apareció'));
 
   // Accesibilidad con los avisos a la vista (instalar y "lista sin internet"), en claro y oscuro.
-  await p.addScriptTag({ content: axe });
+  await p.evaluate(axe); // evaluate y no addScriptTag: la CSP de la app bloquea scripts en línea
   for (const esquema of ['light', 'dark']) {
     await p.emulateMedia({ colorScheme: esquema });
     const r = await p.evaluate(async () => await axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa', 'best-practice'] } }));
@@ -112,6 +127,7 @@ const revisar = (ok, texto, detalle = '') => {
   await p.waitForSelector('h1');
   const conRed = await p.evaluate(() => [...document.querySelectorAll('.aviso')].map((a) => a.textContent).join(' | '));
   revisar(!conRed.includes('Sin conexión'), 'el aviso se va al volver la conexión');
+  revisar(bloqueos.length === 0, 'la CSP no bloqueó nada de la app', bloqueos.slice(0, 3).join(' | '));
   await ctx.close();
   fs.rmSync(perfil, { recursive: true, force: true });
 

@@ -15,14 +15,16 @@ Por ahora tiene cuentas (entrar, crear cuenta, recuperar la contraseña y cerrar
 | Fuentes | Archivo e IBM Plex Mono desde `@fontsource`, solo el subconjunto latino, guardadas junto con la app |
 | Cuentas | Supabase Auth con correo y contraseña (`@supabase/supabase-js`) |
 | Datos | Supabase: Postgres, una tabla por módulo con RLS ([docs/base-de-datos.md](../docs/base-de-datos.md)) |
-| Hosting (próximo paso) | Cloudflare Pages |
+| Hosting | Cloudflare Pages, conectado al repositorio: cada cambio en `main` se publica solo |
+| Seguridad del navegador | Política de contenido (CSP) y cabeceras de seguridad en `dist/_headers`, generadas al compilar |
 
 ## Estructura
 
 ```
 app/
 ├── index.html              metadatos, color de la barra y ícono de iPhone
-├── vite.config.ts          manifiesto de la app y reglas del service worker
+├── .node-version          versión de Node para compilar en Cloudflare Pages
+├── vite.config.ts          manifiesto, service worker y cabeceras de seguridad
 ├── public/                 favicon e íconos (se generan con npm run iconos, desde la raíz)
 └── src/
     ├── main.tsx            arranque y fuentes
@@ -56,6 +58,25 @@ En el panel de Supabase:
 - **Authentication → URL Configuration:** agregar a *Redirect URLs* las direcciones donde corre la app (`http://localhost:4173/**`, `http://localhost:5173/**` y la de Cloudflare Pages). Si no están, el enlace del correo vuelve a la *Site URL*.
 - **Authentication → Sign In / Providers → Email:** largo mínimo de la contraseña en 8, igual que la app.
 
+## Publicar en Cloudflare Pages
+
+La app se publica sola con cada cambio en `main`. Configuración del proyecto (*Workers & Pages → Create application → Pages → Import an existing Git repository*):
+
+| Ajuste | Valor |
+|---|---|
+| Rama de producción | `main` |
+| Framework preset | None (los valores se ponen a mano) |
+| Build command | `npm run build` |
+| Build output directory | `dist` |
+| Root directory | `app` |
+| Variables | `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY`, los mismos valores de `.env.local` |
+
+- **Node:** la versión sale de `app/.node-version`.
+- **Sin las dos variables, la compilación falla a propósito** (Cloudflare pone `CF_PAGES=1`), en vez de publicar una app que solo dice "Falta configurar".
+- **Cabeceras:** al compilar se genera `dist/_headers` con la política de contenido (CSP), que solo deja cargar lo propio y conectarse con el proyecto de Supabase, y con `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` y `noindex`. `npm run preview` sirve la app con las mismas cabeceras, así que las pruebas locales corren con ellas puestas.
+- **Rutas:** como no hay un `404.html`, Cloudflare trata la app como de una sola página y cualquier dirección abre `index.html`.
+- **Después de la primera publicación,** en Supabase: poner la dirección de Cloudflare como *Site URL* y agregarla a *Redirect URLs* (`https://<proyecto>.pages.dev/**`).
+
 ## Comandos
 
 Dentro de `app/`:
@@ -71,7 +92,7 @@ npm run lint
 Pruebas, desde la raíz del repositorio y con `npm run preview` corriendo:
 
 ```bash
-npm run pwa -- http://localhost:4173        # instalable, sin internet, avisos de Android y iPhone
+npm run pwa -- http://localhost:4173        # cabeceras de seguridad, instalable, sin internet, avisos de Android y iPhone
 npm run cuentas -- http://localhost:4173    # entrar, crear cuenta, recuperar, cerrar sesión y sin internet
 npm run auditar -- http://localhost:4173    # accesibilidad WCAG 2.1 AA en claro y oscuro, a 390 y 1280 px
 npm run capturas -- http://localhost:4173 docs/capturas/app
@@ -88,5 +109,6 @@ Si Playwright no encuentra Chromium, se le indica el navegador instalado con `CH
 - **Flujo implícito de Supabase.** Los enlaces de confirmar y de recuperar funcionan aunque se abran en otro navegador.
 - **Sin internet se sigue viendo Mi Día.** Si hay una sesión guardada, la app no espera a que Supabase renueve el permiso; lo renueva sola al volver la red.
 - **Mensajes sin detalles internos.** Los errores de Supabase se muestran en español y cortos; crear cuenta y recuperar la contraseña no revelan si un correo ya está registrado.
+- **Política de contenido estricta.** Sin scripts ni estilos en línea y sin conexiones a otros dominios. Si algún día se cuela contenido ajeno (un correo, un evento), el navegador no lo ejecuta ni manda datos afuera.
 - **Solo enlaces https.** Igual que en `render_brief.py`, cualquier otro enlace se muestra como texto.
 - **Sin datos personales en el repositorio.** La app solo trae los datos ficticios de ejemplo.

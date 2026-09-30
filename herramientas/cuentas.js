@@ -84,7 +84,7 @@ const llamo = (texto) => servidor.llamadas.filter((l) => l.llamada === texto);
 
 // ---------- ayudas ----------
 async function auditar(p, nombre) {
-  await p.addScriptTag({ content: axe });
+  await p.evaluate(axe); // evaluate y no addScriptTag: la CSP de la app bloquea scripts en línea
   for (const esquema of ['light', 'dark']) {
     await p.emulateMedia({ colorScheme: esquema });
     const r = await p.evaluate(async () => await axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa', 'best-practice'] } }));
