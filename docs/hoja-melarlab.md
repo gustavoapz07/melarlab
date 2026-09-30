@@ -1,6 +1,8 @@
 # La hoja MelarLab
 
-Todos los módulos que necesitan guardar datos usan una sola hoja de cálculo de Google Sheets, con una pestaña por módulo. Es gratis, Claude la lee con el conector de Google Sheets, Apps Script la llena desde el bot de Telegram y se puede editar desde el celular.
+> **Antecedente.** Esta hoja fue el primer esquema de datos de MelarLab, cuando el plan era registrar todo con un bot de Telegram. Desde que MelarLab es una app para celular, los datos viven en Supabase: [docs/base-de-datos.md](base-de-datos.md) explica las tablas que salieron de aquí y qué cambió. Esta página queda como registro del diseño original.
+
+El plan original: todos los módulos que necesitan guardar datos usan una sola hoja de cálculo de Google Sheets, con una pestaña por módulo. Es gratis, Claude la lee con el conector de Google Sheets, Apps Script la llena desde el bot de Telegram y se puede editar desde el celular.
 
 Mi Día, Agenda y Radar no tienen pestaña: leen Google Calendar, Gmail y la web.
 

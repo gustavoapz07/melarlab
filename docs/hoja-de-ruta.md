@@ -1,26 +1,48 @@
 # Hoja de ruta
 
+MelarLab es una app para celular: una app web instalable (PWA) para Android y iPhone, primero para mí y con cuentas de usuario desde el inicio. Antes el plan era una hoja de Google Sheets y un bot de Telegram; la hoja quedó como [primer esquema](hoja-melarlab.md) de la [base de datos](base-de-datos.md).
+
 ## Base
 - [x] Mi Día (antes "brief mañanero") y Radar funcionando como tareas programadas en la nube.
 - [x] Mapa de módulos.
 - [x] Este repositorio.
-- [ ] Hoja MelarLab en Google Sheets con una pestaña por módulo ([esquema](hoja-melarlab.md)).
+- [x] Hoja MelarLab en Google Sheets con una pestaña por módulo ([esquema](hoja-melarlab.md)). Hoy es el antecedente de la base de datos.
 
-## Fase 1 · Terminar lo que ya existe
-- [ ] Mi Día: cambiar el nombre en la página y en la tarea programada.
-- [ ] Agenda: resumen de la semana los domingos y preparación de reuniones dentro de Mi Día.
+## Fase A · La base de la app
+Meta: una app vacía pero real, instalada en los dos celulares, con cuentas y la base lista.
+- [x] Stack: React + Vite + TypeScript con `vite-plugin-pwa`, Supabase y Cloudflare Pages.
+- [x] Esqueleto de la app: instalable, con el diseño de Mi Día en claro y oscuro y usable sin internet.
+- [x] Cuentas con Supabase Auth: entrar, crear cuenta, recuperar la contraseña y cerrar sesión.
+- [x] Una tabla por módulo en Supabase, con RLS y validaciones en la base.
+- [x] Lista para publicar: cabeceras de seguridad y configuración de Cloudflare Pages.
+- [ ] Publicada en Cloudflare Pages e instalada en Android y en iPhone.
+- [ ] Pruebas en los dos celulares y con un segundo usuario, que no debe ver los datos del primero.
+- [x] README y documentación al día con el plan de la app.
 
-## Fase 2 · Estudios y Pendientes
-- [ ] Estudios: plan de estudios en su pestaña, con el estado de cada materia.
+## Fase B · Mi Día en la app
+- [ ] Llevar Mi Día de la tarea programada a Supabase.
+- [ ] Pantalla Mi Día con datos reales: atención, agenda, entregas, novedades de IA e idea de contenido.
+- [ ] Cambiar "brief mañanero" por "Mi Día" en la tarea programada.
+- [ ] Notificación de la mañana desde la app (web push).
+- [ ] Agenda: resumen de la semana y preparación de cada reunión dentro de Mi Día.
+
+## Fase C · Pendientes y Estudios
+- [ ] Pendientes: agregar, marcar como hecho y fecha límite; los de hoy salen en Mi Día.
+- [ ] Estudios: plan de estudios con el estado de cada materia y el avance de la carrera.
 - [ ] Calendario de la universidad (Canvas) suscrito en Google Calendar.
-- [ ] Pendientes: pestaña propia y sección en Mi Día.
 
-## Fase 3 · Billetera y el bot
-- [ ] Bot de Telegram con Google Apps Script que guarda mensajes como "150 comida" en la pestaña Billetera.
+## Fase D · Billetera
+- [ ] Registrar un gasto en menos de 5 segundos: monto y categoría.
 - [ ] Resumen del mes por categoría y una línea en Mi Día.
 
-## Fase 4 · Salud
-- [ ] Gym, Comidas y Descanso con el mismo bot.
+## Fase E · Salud
+- [ ] Gym, Comidas y Descanso con el mismo registro rápido.
 
-## Fase 5 · El resto
+## Fase F · El resto
 - [ ] Lista de deseos, Clientes y Contenido.
+- [ ] Radar como pantalla de la app.
+
+## Fase G · Abrir la app a otros
+- [ ] Mi Día para otros usuarios con la API de Claude, con tope de uso por usuario.
+- [ ] Verificación de Google para leer Calendar y Gmail de otras personas.
+- [ ] Política de privacidad y términos.
