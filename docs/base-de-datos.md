@@ -1,8 +1,8 @@
 # La base de datos
 
-Los datos de la app viven en Supabase (Postgres). Hay una tabla por módulo, salida del esquema de la [hoja MelarLab](hoja-melarlab.md), que queda como antecedente. Mi Día, Agenda y Radar no tienen tabla: leen Google Calendar, Gmail y la web.
+Los datos de la app viven en Supabase (Postgres). Hay una tabla por módulo, salida del esquema de la [hoja MelarLab](hoja-melarlab.md), que queda como antecedente, más `mi_dia`, donde la rutina de la mañana publica el resumen del día ([abajo](#mi-día)). Agenda y Radar no tienen tabla: leen Google Calendar, Gmail y la web.
 
-La migración que crea todo está en [`supabase/migrations/`](../supabase/migrations/) y la prueba de seguridad en [`supabase/pruebas/rls.sql`](../supabase/pruebas/rls.sql).
+Las migraciones están en [`supabase/migrations/`](../supabase/migrations/) y las pruebas de seguridad en [`supabase/pruebas/`](../supabase/pruebas/): `rls.sql` para las tablas de los módulos y `mi_dia.sql` para Mi Día.
 
 ## Seguridad
 
@@ -33,10 +33,29 @@ Los valores de las listas se guardan en minúscula y sin tildes; la app los mues
 
 Las fechas son `date` y la app siempre manda la fecha local del celular: la base está en UTC y una fecha por defecto podría caer en el día equivocado de noche.
 
+## Mi Día
+
+Mi Día no lo escribe la app ni el usuario: lo publica cada mañana una rutina de Claude Code que corre en la nube.
+
+```mermaid
+flowchart LR
+  R["Rutina de Mi Día (nube de Claude)"] -->|"POST /rest/v1/rpc/publicar_mi_dia + JSON"| P["Proxy de Anthropic"]
+  P -->|"agrega la cabecera x-melarlab-secreto"| F["publicar_mi_dia()"]
+  F -->|"compara la huella SHA-256"| H[("privado.publicadores_mi_dia")]
+  F -->|"guarda o reemplaza el día"| T[("mi_dia")]
+  A["App"] -->|"lee solo lo suyo (RLS)"| T
+```
+
+- **`mi_dia`:** un registro por usuario y por día (`fecha`), con el JSON de Mi Día en `datos` (la misma forma que usa `render_brief.py`, [`app/src/mi-dia/tipos.ts`](../app/src/mi-dia/tipos.ts)). Cada usuario solo puede leer el suyo. Nadie puede agregar, cambiar ni borrar filas directo.
+- **`publicar_mi_dia(datos)`** es la única forma de escribir. Es `SECURITY DEFINER` y la puede llamar cualquiera con la clave publicable (rol `anon`), pero lo primero que hace es pedir el secreto en la cabecera `x-melarlab-secreto`. Sin él responde 401 "No autorizado.". El aviso de Supabase sobre esta función es esperado.
+- **El secreto no está en la base.** Solo su huella SHA-256, en `privado.publicadores_mi_dia`, un esquema que la API no expone y en el que nadie de afuera tiene permisos. El secreto vive en la credencial del entorno de la nube de Claude: el proxy lo agrega a la solicitud después de que sale de la sesión, así que Claude no lo ve.
+- **Validaciones:** un objeto JSON de hasta 100 KB, solo las claves que conoce `render_brief.py`, secciones que son listas de hasta 50 elementos, titular de hasta 300 caracteres y una fecha de ayer, hoy o mañana en Honduras. Publicar otra vez el mismo día reemplaza al anterior.
+- **Lo que un secreto robado permite:** publicar un Mi Día falso de ayer, hoy o mañana, que la app muestra como texto. Nada más: no lee datos ni toca las otras tablas. Se cambia generando otro secreto y reemplazando la huella.
+
 ## Cambios
 
 Cada cambio de estructura es una migración nueva en `supabase/migrations/`, con la fecha y hora en el nombre. Después de aplicarla:
 
-1. Correr `supabase/pruebas/rls.sql` en el editor SQL de Supabase. Termina con un error a propósito, así no guarda nada, y el mensaje trae el resultado: todo tiene que salir bien.
+1. Correr `supabase/pruebas/rls.sql` y `supabase/pruebas/mi_dia.sql` en el editor SQL de Supabase. Terminan con un error a propósito, así no guardan nada, y el mensaje trae el resultado: todo tiene que salir bien.
 2. Revisar los avisos de seguridad y de rendimiento de Supabase.
 3. Volver a generar los tipos de la app (`app/src/cuenta/base-de-datos.ts`).

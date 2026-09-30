@@ -332,6 +332,33 @@ export type Database = {
         }
         Relationships: []
       }
+      mi_dia: {
+        Row: {
+          actualizado: string
+          creado: string
+          datos: Json
+          fecha: string
+          id: string
+          usuario_id: string
+        }
+        Insert: {
+          actualizado?: string
+          creado?: string
+          datos: Json
+          fecha: string
+          id?: string
+          usuario_id: string
+        }
+        Update: {
+          actualizado?: string
+          creado?: string
+          datos?: Json
+          fecha?: string
+          id?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       pendientes: {
         Row: {
           actualizado: string
@@ -376,7 +403,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      publicar_mi_dia: { Args: { datos: Json }; Returns: string }
     }
     Enums: {
       [_ in never]: never
