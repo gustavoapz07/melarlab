@@ -40,6 +40,18 @@ export function semanaISO(f: Fecha): number {
 
 export const mayuscula = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
 
+/** "2026-09-30" a "miércoles 30 de septiembre". */
+export function fechaEnPalabras(iso: string): string {
+  const f = leerFecha(iso)
+  return `${DIAS[diaSemana(f)]} ${f.d} de ${MESES[f.m - 1]}`
+}
+
+/** La fecha de hoy según el reloj del celular, como "AAAA-MM-DD". */
+export function hoyEnElCelular(ahora = new Date()): string {
+  const dos = (n: number) => String(n).padStart(2, '0')
+  return `${ahora.getFullYear()}-${dos(ahora.getMonth() + 1)}-${dos(ahora.getDate())}`
+}
+
 export function toMin(s: string): number {
   const [h, m] = s.split(':')
   return Number(h) * 60 + Number(m)

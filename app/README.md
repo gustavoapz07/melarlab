@@ -2,7 +2,7 @@
 
 La app para celular de MelarLab. Es una app web instalable (PWA): se instala desde el navegador en Android y en iPhone, queda en la pantalla de inicio y funciona sin internet.
 
-Por ahora tiene cuentas (entrar, crear cuenta, recuperar la contraseña y cerrar sesión, con Supabase Auth) y muestra **Mi Día** con los datos ficticios de [`modulos/mi-dia/ejemplos/dia-cargado.json`](../modulos/mi-dia/ejemplos/dia-cargado.json). La base de datos ya tiene una tabla por módulo con RLS ([docs/base-de-datos.md](../docs/base-de-datos.md)); las pantallas que la usan y Mi Día con datos reales llegan en los siguientes pasos de la [hoja de ruta](../docs/hoja-de-ruta.md).
+Por ahora tiene cuentas (entrar, crear cuenta, recuperar la contraseña y cerrar sesión, con Supabase Auth) y muestra **Mi Día** con los datos reales de cada mañana: una rutina de Claude Code lo publica en la tabla `mi_dia` de Supabase de lunes a viernes a las 5:50 AM ([docs/base-de-datos.md](../docs/base-de-datos.md#mi-día)). Las pantallas de los demás módulos llegan en los siguientes pasos de la [hoja de ruta](../docs/hoja-de-ruta.md).
 
 ![Mi Día en la app, en el celular](../docs/capturas/app-mi-dia-390-light.png)
 
@@ -41,7 +41,9 @@ app/
     │   ├── Amanecer.tsx    ilustración "amanecer con datos"
     │   ├── cielo.ts        salida y puesta del sol (NOAA) y fase de la luna
     │   ├── formato.ts      fechas y horas en español
-    │   └── tipos.ts        forma del JSON de Mi Día
+    │   ├── tipos.ts        forma del JSON de Mi Día
+    │   ├── useMiDia.ts     trae el Mi Día más reciente de Supabase y guarda una copia para verlo sin internet
+    │   └── normalizar.ts   descarta lo que no se puede dibujar, para que un dato raro no rompa la pantalla
     └── pwa/
         ├── AvisoActualizacion.tsx   "Lista para usar sin internet" y "Hay una versión nueva"
         ├── Instalar.tsx             botón de instalar (Android) o instrucciones (iPhone)
@@ -94,6 +96,7 @@ Pruebas, desde la raíz del repositorio y con `npm run preview` corriendo:
 ```bash
 npm run pwa -- http://localhost:4173        # cabeceras de seguridad, instalable, sin internet, avisos de Android y iPhone
 npm run cuentas -- http://localhost:4173    # entrar, crear cuenta, recuperar, cerrar sesión y sin internet
+npm run mi-dia -- http://localhost:4173     # Mi Día de hoy, de otro día, todavía ninguno, errores, sin internet y datos raros
 npm run auditar -- http://localhost:4173    # accesibilidad WCAG 2.1 AA en claro y oscuro, a 390 y 1280 px
 npm run capturas -- http://localhost:4173 docs/capturas/app
 ```
@@ -108,7 +111,9 @@ Si Playwright no encuentra Chromium, se le indica el navegador instalado con `CH
 - **Correo y contraseña.** En iPhone, la app instalada y Safari no comparten lo guardado: un enlace mágico por correo se abriría en Safari y dejaría la sesión allá. Con contraseña se entra directo en la app.
 - **Flujo implícito de Supabase.** Los enlaces de confirmar y de recuperar funcionan aunque se abran en otro navegador.
 - **Sin internet se sigue viendo Mi Día.** Si hay una sesión guardada, la app no espera a que Supabase renueve el permiso; lo renueva sola al volver la red.
+- **Mi Día real, con copia en el celular.** La app pide el Mi Día más reciente (las reglas de la base solo le dan el suyo a cada usuario) y guarda una copia para abrirlo sin internet. Vuelve a consultar al abrir la app y al volver la red. Si el más reciente es de otro día (fin de semana o antes de las 5:50), lo dice. Cerrar sesión borra la copia.
+- **Los datos de Mi Día se revisan antes de dibujarlos.** Lo que no tiene lo mínimo (un título, una hora que existe) se descarta, y el texto nunca se interpreta como HTML.
 - **Mensajes sin detalles internos.** Los errores de Supabase se muestran en español y cortos; crear cuenta y recuperar la contraseña no revelan si un correo ya está registrado.
 - **Política de contenido estricta.** Sin scripts ni estilos en línea y sin conexiones a otros dominios. Si algún día se cuela contenido ajeno (un correo, un evento), el navegador no lo ejecuta ni manda datos afuera.
 - **Solo enlaces https.** Igual que en `render_brief.py`, cualquier otro enlace se muestra como texto.
-- **Sin datos personales en el repositorio.** La app solo trae los datos ficticios de ejemplo.
+- **Sin datos personales en el repositorio.** Mi Día llega de Supabase; las pruebas y las capturas usan los datos ficticios de ejemplo.

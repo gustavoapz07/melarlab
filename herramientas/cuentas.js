@@ -1,11 +1,12 @@
 // Uso: node herramientas/cuentas.js http://localhost:4173
 // Prueba las pantallas de cuenta de la app ya compilada (npm run build y npm run preview dentro de app/).
-// Supabase Auth se simula dentro del navegador de prueba: ninguna llamada sale a supabase.co,
+// Supabase Auth (y la consulta de Mi Día) se simulan dentro del navegador de prueba: ninguna llamada sale a supabase.co,
 // así que no se crean cuentas reales ni se envían correos. El correo y la contraseña son de prueba
 // y la contraseña cambia en cada corrida.
 // Si Chromium no está donde lo espera Playwright, indica la ruta con CHROMIUM_PATH.
 const crypto = require('crypto');
 const fs = require('fs');
+const path = require('path');
 const { chromium } = require('playwright');
 const axe = fs.readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
 
@@ -50,7 +51,12 @@ function sesion(dura = 3600) {
   return { access_token: token(exp), token_type: 'bearer', expires_in: dura, expires_at: exp, refresh_token: 'r-' + crypto.randomBytes(6).toString('hex'), user: usuario };
 }
 
-const servidor = { clave: CLAVE_INICIAL, sinRed: false, llamadas: [], inesperadas: [] };
+const servidor = { clave: CLAVE_INICIAL, sinRed: false, llamadas: [], inesperadas: [], consultasMiDia: [] };
+
+// El Mi Día que "publicó la rutina": el ejemplo ficticio del repositorio, con la fecha de hoy.
+const dos = (n) => String(n).padStart(2, '0');
+const hoy = (d = new Date()) => `${d.getFullYear()}-${dos(d.getMonth() + 1)}-${dos(d.getDate())}`;
+const MI_DIA = { ...JSON.parse(fs.readFileSync(path.join(__dirname, '../modulos/mi-dia/ejemplos/dia-cargado.json'), 'utf8')), fecha: hoy() };
 const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'GET,POST,PUT,DELETE,OPTIONS' };
 const json = (route, status, cuerpo) => route.fulfill({ status, headers: { ...CORS, 'content-type': 'application/json' }, body: JSON.stringify(cuerpo) });
 
@@ -77,6 +83,10 @@ async function supabaseSimulado(route) {
     return json(route, 200, usuario);
   }
   if (llamada === 'POST /auth/v1/logout') return route.fulfill({ status: 204, headers: CORS });
+  if (llamada === 'GET /rest/v1/mi_dia') {
+    servidor.consultasMiDia.push(req.headers()['authorization'] || '');
+    return json(route, 200, [{ datos: MI_DIA }]);
+  }
   servidor.inesperadas.push(llamada);
   return json(route, 404, { code: 404, msg: 'no simulado' });
 }
@@ -164,6 +174,7 @@ async function esperarTitulo(p, texto) {
   revisar((await esperarTitulo(p, 'Entra a MelarLab')) === 'Entra a MelarLab', 'cerrar sesión vuelve a "Entra a MelarLab"');
   revisar(llamo('POST /auth/v1/logout').length === 1, 'cerrar sesión avisa a Supabase');
   revisar(await p.evaluate((k) => localStorage.getItem(k) === null, CLAVE_SESION), 'cerrar sesión borra la sesión del celular');
+  revisar(await p.evaluate(() => !Object.keys(localStorage).some((k) => k.startsWith('melarlab.mi-dia.'))), 'cerrar sesión borra el Mi Día guardado');
 
   // 7. Entrar con la contraseña correcta.
   await p.getByLabel('Correo').fill(CORREO);
@@ -171,6 +182,10 @@ async function esperarTitulo(p, texto) {
   await p.getByRole('button', { name: 'Entrar' }).click();
   await p.locator('.foot-cuenta').waitFor({ timeout: 10000 }).catch(() => {});
   revisar(await p.locator('.foot-cuenta').isVisible(), 'entrar con la contraseña correcta abre Mi Día');
+  const titular = await p.getByRole('heading', { level: 1, name: MI_DIA.titular }).waitFor({ timeout: 10000 }).then(() => true, () => false);
+  revisar(titular, 'Mi Día viene de Supabase: se ve el titular publicado');
+  const permiso = servidor.consultasMiDia.at(-1) || '';
+  revisar(/^Bearer [\w-]+\.[\w-]+\./.test(permiso), 'Mi Día se pide con la sesión del usuario (RLS)', permiso ? 'Bearer …' : 'sin Authorization');
   await auditar(p, 'Mi Día con sesión');
   await p.reload();
   await p.locator('.foot-cuenta').waitFor({ timeout: 10000 }).catch(() => {});

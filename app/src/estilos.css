@@ -118,6 +118,8 @@ a.t:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-th
 .foot-cuenta{flex-basis:100%;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0 16px;border-top:1px solid var(--rule);margin-top:4px;padding-top:4px}
 .foot-cuenta .correo{text-transform:none;letter-spacing:.02em;overflow-wrap:anywhere}
 .foot-cuenta .btn{margin-right:-8px}
+/* Pantallas cortas (sin Mi Día todavía, error): el pie solo lleva la cuenta, sin la segunda línea. */
+.foot > .foot-cuenta:only-child{border-top:0;margin-top:0;padding-top:0}
 
 @media (max-width:640px){
  .wrap{padding:16px 16px 40px}

@@ -100,10 +100,6 @@ export default defineConfig(({ mode }) => {
         },
       }),
     ],
-    server: {
-      // Los datos de ejemplo de Mi Día viven fuera de app/, en modulos/mi-dia/ejemplos/.
-      fs: { allow: ['..'] },
-    },
     // `npm run preview` sirve la app con las mismas cabeceras que Cloudflare, para probarlas en local.
     // En `npm run dev` no se ponen: Vite necesita scripts en línea para recargar al vuelo.
     preview: { headers: cabeceras },

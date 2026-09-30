@@ -1,5 +1,6 @@
 import type { User } from '@supabase/supabase-js'
 import { useEffect, useState } from 'react'
+import { borrarMiDiaGuardado } from '../mi-dia/useMiDia.ts'
 import { CLAVE_SESION, supabase } from './supabase.ts'
 
 export type Sesion =
@@ -36,6 +37,7 @@ export function useSesion(): { sesion: Sesion; salir: () => Promise<void> } {
       if (evento === 'PASSWORD_RECOVERY' && s) {
         setSesion({ tipo: 'nueva-contrasena', usuario: s.user })
       } else if (evento === 'SIGNED_OUT') {
+        borrarMiDiaGuardado()
         setSesion({ tipo: 'fuera' })
       } else if (s) {
         setSesion((antes) => {
@@ -65,6 +67,8 @@ export function useSesion(): { sesion: Sesion; salir: () => Promise<void> } {
     } catch {
       // Sin almacenamiento: no hay nada guardado que borrar.
     }
+    // Lo que se guardó para ver sin internet tampoco se queda en el celular.
+    borrarMiDiaGuardado()
     setSesion({ tipo: 'fuera' })
   }
 

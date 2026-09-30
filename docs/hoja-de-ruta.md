@@ -15,13 +15,13 @@ Meta: una app vacía pero real, instalada en los dos celulares, con cuentas y la
 - [x] Cuentas con Supabase Auth: entrar, crear cuenta, recuperar la contraseña y cerrar sesión.
 - [x] Una tabla por módulo en Supabase, con RLS y validaciones en la base.
 - [x] Lista para publicar: cabeceras de seguridad y configuración de Cloudflare Pages.
-- [ ] Publicada en Cloudflare Pages e instalada en Android y en iPhone.
-- [ ] Pruebas en los dos celulares y con un segundo usuario, que no debe ver los datos del primero.
+- [x] Publicada en Cloudflare Pages e instalada en Android. Falta probarla en iPhone.
+- [x] Pruebas sobre la app publicada: accesibilidad, instalación y un segundo usuario que no ve los datos del primero (en la base real).
 - [x] README y documentación al día con el plan de la app.
 
 ## Fase B · Mi Día en la app
-- [ ] Llevar Mi Día de la tarea programada a Supabase.
-- [ ] Pantalla Mi Día con datos reales: atención, agenda, entregas, novedades de IA e idea de contenido.
+- [x] Llevar Mi Día a Supabase: una rutina de Claude Code lo publica cada mañana con un secreto que Claude no ve.
+- [x] Pantalla Mi Día con datos reales: atención, agenda, entregas, novedades de IA e idea de contenido, también sin internet.
 - [ ] Cambiar "brief mañanero" por "Mi Día" en la tarea programada.
 - [ ] Notificación de la mañana desde la app (web push).
 - [ ] Agenda: resumen de la semana y preparación de cada reunión dentro de Mi Día.

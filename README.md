@@ -8,7 +8,7 @@ Mi sistema de automatizaciones para tener más orden en la vida. Lema: *vida con
 
 - **Mi Día:** cada mañana, de lunes a viernes, una página con la agenda de hoy, lo que necesita mi atención, las entregas de la U y un par de novedades de IA. Se genera sola en la nube y me llega un aviso al celular.
 - **Radar:** cada domingo, un resumen de lo más útil que pasó en IA esa semana, verificado en su fuente.
-- **La app para celular** (en construcción): se instala desde el navegador en Android y en iPhone, pide cuenta y funciona sin internet. Por ahora muestra Mi Día con datos de ejemplo; los demás módulos llegan como pantallas de la app. Detalle en [app/README.md](app/README.md).
+- **La app para celular** (en construcción): se instala desde el navegador en Android y en iPhone, pide cuenta y funciona sin internet. Ya muestra el Mi Día real de cada mañana; los demás módulos llegan como pantallas de la app. Detalle en [app/README.md](app/README.md).
 
 ## Módulos
 
@@ -35,7 +35,7 @@ Detalle de cada uno en [docs/modulos.md](docs/modulos.md) y el orden en que se c
 - **Todo pasa por una app para celular.** Es una app web instalable (PWA) hecha con React, Vite y TypeScript: un solo código para Android y iPhone, sin tiendas y a $0. Gastos, entrenos, comidas, horas de sueño y pendientes se registran ahí mismo, en segundos.
 - **Supabase guarda las cuentas y los datos.** Una tabla por módulo en Postgres, con reglas por usuario (RLS): cada quien ve y cambia solo lo suyo. Detalle en [docs/base-de-datos.md](docs/base-de-datos.md).
 - **Cloudflare Pages publica la app** cada vez que cambia `main`, con una política de contenido (CSP) estricta.
-- **Tareas programadas de Claude** corren en la nube a su hora. Leen Google Calendar y Gmail, escriben un JSON y un script lo convierte en la página. No dependen de que la laptop esté encendida.
+- **Una rutina de Claude Code arma Mi Día** en la nube a las 5:50 AM: lee Google Calendar y Gmail, verifica las novedades de IA en su fuente y publica el JSON en Supabase con un secreto que Claude no ve ([docs/base-de-datos.md](docs/base-de-datos.md#mi-día)). No depende de que la laptop esté encendida.
 - **El diseño vive en código.** [`render_brief.py`](modulos/mi-dia/render_brief.py) convierte el JSON en HTML con el mismo diseño todos los días: blanco y negro, tipografía Archivo e IBM Plex Mono, y una ilustración del amanecer calculada con datos reales (salida y puesta del sol con la calculadora de la NOAA y fase de la luna). La pantalla Mi Día de la app usa el mismo diseño y el mismo JSON.
 - **Antes de la app, el plan era una hoja de Google Sheets y un bot de Telegram.** La hoja fue el primer esquema de datos ([docs/hoja-melarlab.md](docs/hoja-melarlab.md)) y de ahí salieron las tablas de Supabase.
 
