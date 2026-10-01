@@ -4,6 +4,7 @@
 // actualiza a mano; revisarlo solo en las tiendas queda para después (ver Decisiones en la bóveda).
 import { supabase } from '../cuenta/supabase.ts'
 import { dinero } from '../dinero.ts'
+import { leerEnlace as leer } from '../enlaces.ts'
 import { PREFIJOS } from '../guardado.ts'
 import { esDe, mensajeDeFalla, useTabla, type EstadoTabla } from '../useTabla.ts'
 
@@ -96,6 +97,10 @@ export function useDeseos(usuario: string) {
   return { estado, agregar, cambiar, borrar, recargar }
 }
 
+/** El enlace de una tienda: null si va vacío; undefined si no sirve (no es https o es muy largo). */
+export const leerEnlace = (texto: string) => leer(texto, LARGO.enlace)
+export { dominio } from '../enlaces.ts'
+
 // ---------- precios ----------
 
 /** Llegó al precio que quiero pagar (o más abajo). */
@@ -136,22 +141,6 @@ export function totales(lista: Deseo[]): { moneda: string; hoy: number; objetivo
   return [...porMoneda.entries()]
     .sort(([a], [b]) => (a === 'HNL' ? -1 : b === 'HNL' ? 1 : a.localeCompare(b)))
     .map(([moneda, t]) => ({ moneda, hoy: t.hoy / 100, objetivo: t.objetivo / 100, sinPrecio: t.sinPrecio }))
-}
-
-/** "https://tienda.com/x" si sirve para la base, null si va vacío; undefined si no sirve (no es https). */
-export function leerEnlace(texto: string): string | null | undefined {
-  const t = texto.trim()
-  if (!t) return null
-  return /^https:\/\/\S+$/i.test(t) && t.length <= LARGO.enlace ? t : undefined
-}
-
-/** El dominio, para mostrar el enlace corto: "tienda.com". */
-export function dominio(enlace: string): string {
-  try {
-    return new URL(enlace).hostname.replace(/^www\./, '')
-  } catch {
-    return enlace
-  }
 }
 
 /** Para Mi Día: "Audífonos llegó a tu precio: L 900." o "2 cosas llegaron a tu precio: Audífonos y Teclado." Null si nada. */

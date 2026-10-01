@@ -39,7 +39,7 @@ Meta: una app vacía pero real, instalada en los dos celulares, con cuentas y la
 - [x] Gym, Comidas y Descanso con el mismo registro rápido.
 
 ## Fase F · El resto
-- [ ] Lista de deseos, Clientes y Contenido.
+- [x] Lista de deseos, Clientes y Contenido.
 - [ ] Radar como pantalla de la app.
 
 ## Fase G · Abrir la app a otros

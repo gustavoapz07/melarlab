@@ -12,6 +12,7 @@ export const PREFIJOS = {
   comidas: 'melarlab.comidas.',
   deseos: 'melarlab.deseos.',
   clientes: 'melarlab.clientes.',
+  contenido: 'melarlab.contenido.',
 } as const
 
 export function leerGuardado(clave: string): unknown {

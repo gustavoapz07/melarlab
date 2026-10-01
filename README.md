@@ -8,7 +8,7 @@ Mi sistema de automatizaciones para tener más orden en la vida. Lema: *vida con
 
 - **Mi Día:** cada mañana, de lunes a viernes, una página con la agenda de hoy, lo que necesita mi atención, las entregas de la U y un par de novedades de IA. Se genera sola en la nube y me llega un aviso al celular.
 - **Radar:** cada domingo, un resumen de lo más útil que pasó en IA esa semana, verificado en su fuente.
-- **La app para celular** (en construcción): se instala desde el navegador en Android y en iPhone, pide cuenta y funciona sin internet. Ya muestra el Mi Día real de cada mañana, la lista de Pendientes, la Billetera (un gasto se anota con el monto y un toque), la Lista de deseos (avisa cuando algo llega a tu precio), el Descanso (cómo vengo durmiendo), las Comidas (qué hay de comer y el plan de los próximos días), el Gym (qué toca hoy y la semana), el plan de Estudios y los Clientes (a quién toca escribirle hoy) con el avance de la carrera; los demás módulos llegan como pantallas de la app. Detalle en [app/README.md](app/README.md).
+- **La app para celular** (en construcción): se instala desde el navegador en Android y en iPhone, pide cuenta y funciona sin internet. Ya muestra el Mi Día real de cada mañana, la lista de Pendientes, la Billetera (un gasto se anota con el monto y un toque), la Lista de deseos (avisa cuando algo llega a tu precio), el Descanso (cómo vengo durmiendo), las Comidas (qué hay de comer y el plan de los próximos días), el Gym (qué toca hoy y la semana), el plan de Estudios, los Clientes (a quién toca escribirle hoy) y el Contenido (de la idea a la publicación) con el avance de la carrera; los demás módulos llegan como pantallas de la app. Detalle en [app/README.md](app/README.md).
 
 ## Módulos
 
@@ -25,7 +25,7 @@ Mi sistema de automatizaciones para tener más orden en la vida. Lema: *vida con
 | Dinero | Billetera | Ingresos, gastos y resumen del mes | Activo |
 | | Lista de deseos | Productos que quiero comprar y su precio | Activo: el precio se actualiza a mano |
 | Negocio | Clientes | Prospección y seguimiento de clientes | Activo |
-| | Contenido | De una idea a publicaciones para cinco redes | Planeado |
+| | Contenido | De una idea a publicaciones para cinco redes | Activo |
 
 Detalle de cada uno en [docs/modulos.md](docs/modulos.md) y el orden en que se construyen en [docs/hoja-de-ruta.md](docs/hoja-de-ruta.md).
 

@@ -1,5 +1,5 @@
 // Pantalla Mi Día: la de inicio. Misma estructura y diseño que render() en modulos/mi-dia/render_brief.py.
-import { Fragment, type ReactNode } from 'react'
+import { Fragment, useState, type ReactNode } from 'react'
 import { Amanecer } from './Amanecer.tsx'
 import { horasDelSol, luna } from './cielo.ts'
 import { DIAS, MESES, diaSemana, hm, leerFecha, mayuscula, rango, semanaISO, sumarDias, toMin, type Fecha } from './formato.ts'
@@ -99,7 +99,33 @@ function Entregas({ lista }: { lista: Entrega[] }) {
   )
 }
 
-function IdeaDeContenido({ idea }: { idea: Idea }) {
+/** Guardar la idea del día en el módulo Contenido: un toque. Si ya está guardada, lo dice y lleva a Contenido. */
+export interface GuardarIdea {
+  yaGuardada: boolean
+  guardar: () => Promise<string | null>
+  enlace: ReactNode
+}
+
+function BotonGuardarIdea({ g }: { g: GuardarIdea }) {
+  const [enviando, setEnviando] = useState(false)
+  const [mensaje, setMensaje] = useState<string | null>(null)
+  if (g.yaGuardada) return <p className="ver-mas">Guardada en Contenido · {g.enlace}</p>
+  async function guardar() {
+    setEnviando(true)
+    setMensaje(null)
+    const error = await g.guardar()
+    setEnviando(false)
+    if (error) setMensaje(error)
+  }
+  return (
+    <div className="guardar-idea">
+      <button type="button" className="btn" onClick={guardar} disabled={enviando}>{enviando ? 'Guardando…' : 'Guardar en Contenido'}</button>
+      {mensaje && <p className="alerta" role="alert">{mensaje}</p>}
+    </div>
+  )
+}
+
+function IdeaDeContenido({ idea, guardar }: { idea: Idea; guardar?: GuardarIdea }) {
   const filas: [string, string | undefined][] = [['Formato', idea.formato], ['Red', idea.red], ['Gancho', idea.gancho],
     ['Desarrollo', idea.desarrollo], ['Cierre', idea.cierre]]
   return (
@@ -110,6 +136,7 @@ function IdeaDeContenido({ idea }: { idea: Idea }) {
           <Fragment key={k}><dt>{k}</dt><dd>{v}</dd></Fragment>
         ))}
       </dl>
+      {guardar && <BotonGuardarIdea g={guardar} />}
     </div>
   )
 }
@@ -146,13 +173,15 @@ interface Props {
   salud?: Linea[]
   /** Una línea por módulo de dinero (Billetera y Lista de deseos), en vivo, con su enlace. */
   dinero?: Linea[]
-  /** Una línea por módulo de negocio (Clientes, y después Contenido), en vivo, con su enlace. */
+  /** Guardar la idea del día en Contenido (si hay idea). */
+  guardarIdea?: GuardarIdea
+  /** Una línea por módulo de negocio (Clientes y Contenido), en vivo, con su enlace. */
   negocio?: Linea[]
   /** Cuenta y botón de cerrar sesión, en el pie. */
   cuenta?: ReactNode
 }
 
-export function MiDia({ datos, avisos, nav, pendientes, salud, dinero, negocio, cuenta }: Props) {
+export function MiDia({ datos, avisos, nav, pendientes, salud, dinero, negocio, guardarIdea, cuenta }: Props) {
   const fecha = leerFecha(datos.fecha)
   const ubicacion = datos.ubicacion ?? UBICACION_EJEMPLO
   const { salida, puesta } = horasDelSol(fecha, ubicacion.lat, ubicacion.lon, ubicacion.tz)
@@ -198,7 +227,7 @@ export function MiDia({ datos, avisos, nav, pendientes, salud, dinero, negocio, 
     secciones.push({ id: 'ia', etiqueta: 'IA', titulo: 'Novedades de IA', cuenta: datos.ia.length, contenido: <Items lista={datos.ia} /> })
   }
   if (datos.idea) {
-    secciones.push({ id: 'idea', etiqueta: 'Idea', titulo: 'Idea de contenido', cuenta: 1, contenido: <IdeaDeContenido idea={datos.idea} /> })
+    secciones.push({ id: 'idea', etiqueta: 'Idea', titulo: 'Idea de contenido', cuenta: 1, contenido: <IdeaDeContenido idea={datos.idea} guardar={guardarIdea} /> })
   }
   for (const extra of datos.secciones_extra ?? []) {
     const items = extra.items ?? []

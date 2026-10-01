@@ -5,6 +5,8 @@ import { Entrada, NuevaContrasena } from './cuenta/Entrada.tsx'
 import { PantallaClientes, type AccionesClientes } from './clientes/Clientes.tsx'
 import { lineaDeClientes, useClientes } from './clientes/useClientes.ts'
 import { PantallaComidas, type AccionesComidas } from './comidas/Comidas.tsx'
+import { PantallaContenido, type AccionesContenido } from './contenido/Contenido.tsx'
+import { deLaIdeaDeMiDia, lineaDeContenido, useContenido } from './contenido/useContenido.ts'
 import { caseras, delDia, enPalabras, useComidas } from './comidas/useComidas.ts'
 import { configurada } from './cuenta/supabase.ts'
 import { useSesion } from './cuenta/useSesion.ts'
@@ -18,7 +20,8 @@ import { PantallaGym, type AccionesGym } from './gym/Gym.tsx'
 import { cuentaDeLaSemana, resumirGym, useGym } from './gym/useGym.ts'
 import { Marco } from './Marco.tsx'
 import { fechaEnPalabras, hoyEnElCelular } from './mi-dia/formato.ts'
-import { Marca, MiDia, type Linea } from './mi-dia/MiDia.tsx'
+import { Marca, MiDia, type GuardarIdea, type Linea } from './mi-dia/MiDia.tsx'
+import type { Idea } from './mi-dia/tipos.ts'
 import { useMiDia } from './mi-dia/useMiDia.ts'
 import { Enlace, NavModulos } from './navegacion.tsx'
 import { PantallaPendientes, type AccionesPendientes } from './pendientes/Pendientes.tsx'
@@ -78,12 +81,25 @@ function lineasDeDinero(billetera: AccionesBilletera, deseos: AccionesDeseos, ho
   return lineas
 }
 
-/** Las líneas de negocio de Mi Día: a quién toca escribirle hoy (solo si a alguien). */
-function lineasDeNegocio(clientes: AccionesClientes, hoy: string, navegar: Navegar) {
+/** Las líneas de negocio de Mi Día: a quién toca escribirle y qué toca publicar hoy (solo si hay algo). */
+function lineasDeNegocio(clientes: AccionesClientes, contenido: AccionesContenido, hoy: string, navegar: Navegar) {
   const lineas: Linea[] = []
   const toca = clientes.estado.tipo === 'listo' ? lineaDeClientes(clientes.estado.lista, hoy) : null
   if (toca) lineas.push({ modulo: 'Clientes', texto: toca, enlace: <Enlace a="/clientes" navegar={navegar}>Ver los clientes</Enlace> })
+  const publicar = contenido.estado.tipo === 'listo' ? lineaDeContenido(contenido.estado.lista, hoy) : null
+  if (publicar) lineas.push({ modulo: 'Contenido', texto: publicar, enlace: <Enlace a="/contenido" navegar={navegar}>Ver el contenido</Enlace> })
   return lineas
+}
+
+/** Guardar la idea de contenido del día como pieza del módulo Contenido. Si ya está, lo dice. */
+function guardarLaIdea(idea: Idea | undefined, contenido: AccionesContenido, navegar: Navegar): GuardarIdea | undefined {
+  if (!idea || contenido.estado.tipo !== 'listo') return undefined
+  const nueva = deLaIdeaDeMiDia(idea)
+  return {
+    yaGuardada: contenido.estado.lista.some((p) => p.idea === nueva.idea),
+    guardar: () => contenido.agregar(nueva),
+    enlace: <Enlace a="/contenido" navegar={navegar}>Ver en Contenido</Enlace>,
+  }
 }
 
 /** Lo que sobra este mes en la Billetera (ingresos menos gastos), por moneda. Solo las monedas donde sobra algo. */
@@ -130,7 +146,7 @@ function lineasDeSalud(descanso: AccionesDescanso, comidas: AccionesComidas, gym
 }
 
 /** Mi Día real, de la tabla mi_dia, con los pendientes de hoy. Mientras no hay uno, una pantalla corta que explica por qué. */
-function PantallaMiDia({ usuario, pendientes, billetera, deseos, descanso, comidas, gym, clientes, navegar, enLinea, nav, cuenta, aviso }: Comun & {
+function PantallaMiDia({ usuario, pendientes, billetera, deseos, descanso, comidas, gym, clientes, contenido, navegar, enLinea, nav, cuenta, aviso }: Comun & {
   usuario: string
   pendientes: AccionesPendientes
   billetera: AccionesBilletera
@@ -139,6 +155,7 @@ function PantallaMiDia({ usuario, pendientes, billetera, deseos, descanso, comid
   comidas: AccionesComidas
   gym: AccionesGym
   clientes: AccionesClientes
+  contenido: AccionesContenido
   navegar: Navegar
 }) {
   const { estado, recargar } = useMiDia(usuario)
@@ -159,7 +176,8 @@ function PantallaMiDia({ usuario, pendientes, billetera, deseos, descanso, comid
         }}
         salud={lineasDeSalud(descanso, comidas, gym, hoy, navegar)}
         dinero={lineasDeDinero(billetera, deseos, hoy, navegar)}
-        negocio={lineasDeNegocio(clientes, hoy, navegar)}
+        negocio={lineasDeNegocio(clientes, contenido, hoy, navegar)}
+        guardarIdea={guardarLaIdea(estado.datos.idea ?? undefined, contenido, navegar)}
         avisos={(
           <Avisos enLinea={enLinea} aviso={aviso} sinConexion="Sin conexión. Lo que ves quedó guardado en el celular.">
             {estado.fallo && enLinea && (
@@ -235,6 +253,7 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
   const comidas = useComidas(usuario)
   const gym = useGym(usuario)
   const clientes = useClientes(usuario)
+  const contenido = useContenido(usuario)
   const nav = <NavModulos ruta={ruta} navegar={navegar} />
   const cuenta = (
     <>
@@ -323,6 +342,22 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
       />
     )
   }
+  if (ruta === '/contenido') {
+    return (
+      <PantallaContenido
+        acciones={contenido}
+        enLinea={enLinea}
+        nav={nav}
+        cuenta={cuenta}
+        avisos={(
+          <Avisos enLinea={enLinea} aviso={aviso}
+            sinConexion={contenido.estado.tipo === 'listo'
+              ? 'Sin conexión. Ves lo último guardado; para cambiar algo hace falta internet.'
+              : 'Sin conexión.'} />
+        )}
+      />
+    )
+  }
   if (ruta === '/clientes') {
     return (
       <PantallaClientes
@@ -359,7 +394,7 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
     )
   }
   return (
-    <PantallaMiDia usuario={usuario} pendientes={pendientes} billetera={billetera} deseos={deseos} descanso={descanso} comidas={comidas} gym={gym} clientes={clientes} navegar={navegar} enLinea={enLinea} nav={nav} cuenta={cuenta} aviso={aviso} />
+    <PantallaMiDia usuario={usuario} pendientes={pendientes} billetera={billetera} deseos={deseos} descanso={descanso} comidas={comidas} gym={gym} clientes={clientes} contenido={contenido} navegar={navegar} enLinea={enLinea} nav={nav} cuenta={cuenta} aviso={aviso} />
   )
 }
 

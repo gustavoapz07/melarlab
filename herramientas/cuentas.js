@@ -87,7 +87,7 @@ async function supabaseSimulado(route) {
   if (llamada === 'GET /rest/v1/billetera') return json(route, 200, []);
   if (llamada === 'GET /rest/v1/descanso') return json(route, 200, []);
   if (llamada === 'GET /rest/v1/gym' || llamada === 'GET /rest/v1/gym_plan') return json(route, 200, []);
-  if (llamada === 'GET /rest/v1/comidas' || llamada === 'GET /rest/v1/lista_deseos' || llamada === 'GET /rest/v1/clientes') return json(route, 200, []);
+  if (llamada === 'GET /rest/v1/comidas' || llamada === 'GET /rest/v1/lista_deseos' || llamada === 'GET /rest/v1/clientes' || llamada === 'GET /rest/v1/contenido') return json(route, 200, []);
   if (llamada === 'GET /rest/v1/mi_dia') {
     servidor.consultasMiDia.push(req.headers()['authorization'] || '');
     return json(route, 200, [{ datos: MI_DIA }]);
