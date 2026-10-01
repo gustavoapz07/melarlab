@@ -14,7 +14,8 @@
     "estudios": "node herramientas/estudios.js",
     "billetera": "node herramientas/billetera.js",
     "descanso": "node herramientas/descanso.js",
-    "gym": "node herramientas/gym.js"
+    "gym": "node herramientas/gym.js",
+    "comidas": "node herramientas/comidas.js"
   },
   "devDependencies": {
     "axe-core": "^4.13.0",

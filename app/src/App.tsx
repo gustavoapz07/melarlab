@@ -2,6 +2,8 @@ import type { ReactNode } from 'react'
 import { PantallaBilletera, type AccionesBilletera } from './billetera/Billetera.tsx'
 import { resumirMes, totalEnPalabras, useBilletera } from './billetera/useBilletera.ts'
 import { Entrada, NuevaContrasena } from './cuenta/Entrada.tsx'
+import { PantallaComidas, type AccionesComidas } from './comidas/Comidas.tsx'
+import { caseras, delDia, enPalabras, useComidas } from './comidas/useComidas.ts'
 import { configurada } from './cuenta/supabase.ts'
 import { useSesion } from './cuenta/useSesion.ts'
 import { PantallaDescanso, type AccionesDescanso } from './descanso/Descanso.tsx'
@@ -64,8 +66,8 @@ function lineaDeBilletera(billetera: AccionesBilletera, hoy: string, navegar: Na
   }
 }
 
-/** Las líneas de salud de Mi Día: cómo vengo durmiendo y si hoy toca gym. Un módulo que nunca se usó no sale. */
-function lineasDeSalud(descanso: AccionesDescanso, gym: AccionesGym, hoy: string, navegar: Navegar) {
+/** Las líneas de salud de Mi Día: cómo vengo durmiendo, qué hay de comer y si hoy toca gym. Un módulo que nunca se usó no sale. */
+function lineasDeSalud(descanso: AccionesDescanso, comidas: AccionesComidas, gym: AccionesGym, hoy: string, navegar: Navegar) {
   const lineas: { modulo: string; texto: string; enlace: ReactNode }[] = []
   if (descanso.estado.tipo === 'listo' && descanso.estado.lista.length) {
     const r = resumirSueno(descanso.estado.lista, hoy)
@@ -75,6 +77,16 @@ function lineasDeSalud(descanso: AccionesDescanso, gym: AccionesGym, hoy: string
       modulo: 'Descanso',
       texto: (r.anoche ? `Anoche dormiste ${duracion(r.anoche.horas)}${semana}.` : 'Todavía no anotas cómo dormiste.') + aviso,
       enlace: <Enlace a="/descanso" navegar={navegar}>{r.anoche ? 'Ver el descanso' : 'Anotar la noche'}</Enlace>,
+    })
+  }
+  if (comidas.estado.tipo === 'listo' && comidas.estado.lista.length) {
+    const deHoy = delDia(comidas.estado.lista, hoy)
+    const semana = caseras(comidas.estado.lista, hoy)
+    lineas.push({
+      modulo: 'Comidas',
+      texto: (deHoy.length ? `Hoy: ${enPalabras(deHoy)}.` : 'Nada anotado para hoy.')
+        + (semana.total ? ` Esta semana, ${semana.caseras} de ${semana.total} hechas en casa.` : ''),
+      enlace: <Enlace a="/comidas" navegar={navegar}>{deHoy.length ? 'Ver las comidas' : 'Anotar comidas'}</Enlace>,
     })
   }
   if (gym.entrenos.tipo === 'listo' && gym.plan.tipo === 'listo' && (gym.entrenos.lista.length || gym.plan.lista.length)) {
@@ -90,11 +102,12 @@ function lineasDeSalud(descanso: AccionesDescanso, gym: AccionesGym, hoy: string
 }
 
 /** Mi Día real, de la tabla mi_dia, con los pendientes de hoy. Mientras no hay uno, una pantalla corta que explica por qué. */
-function PantallaMiDia({ usuario, pendientes, billetera, descanso, gym, navegar, enLinea, nav, cuenta, aviso }: Comun & {
+function PantallaMiDia({ usuario, pendientes, billetera, descanso, comidas, gym, navegar, enLinea, nav, cuenta, aviso }: Comun & {
   usuario: string
   pendientes: AccionesPendientes
   billetera: AccionesBilletera
   descanso: AccionesDescanso
+  comidas: AccionesComidas
   gym: AccionesGym
   navegar: Navegar
 }) {
@@ -114,7 +127,7 @@ function PantallaMiDia({ usuario, pendientes, billetera, descanso, gym, navegar,
           lista: deHoy.map((p) => ({ titulo: p.tarea, texto: p.notas ?? undefined, fuente: AREAS[p.area], cuando: cuandoVence(p, hoy) })),
           enlace: <Enlace a="/pendientes" navegar={navegar}>Ver todos los pendientes</Enlace>,
         }}
-        salud={lineasDeSalud(descanso, gym, hoy, navegar)}
+        salud={lineasDeSalud(descanso, comidas, gym, hoy, navegar)}
         billetera={lineaDeBilletera(billetera, hoy, navegar)}
         avisos={(
           <Avisos enLinea={enLinea} aviso={aviso} sinConexion="Sin conexión. Lo que ves quedó guardado en el celular.">
@@ -187,6 +200,7 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
   const pendientes = usePendientes(usuario)
   const billetera = useBilletera(usuario)
   const descanso = useDescanso(usuario)
+  const comidas = useComidas(usuario)
   const gym = useGym(usuario)
   const nav = <NavModulos ruta={ruta} navegar={navegar} />
   const cuenta = (
@@ -228,6 +242,22 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
       />
     )
   }
+  if (ruta === '/comidas') {
+    return (
+      <PantallaComidas
+        acciones={comidas}
+        enLinea={enLinea}
+        nav={nav}
+        cuenta={cuenta}
+        avisos={(
+          <Avisos enLinea={enLinea} aviso={aviso}
+            sinConexion={comidas.estado.tipo === 'listo'
+              ? 'Sin conexión. Ves lo último guardado; para anotar hace falta internet.'
+              : 'Sin conexión.'} />
+        )}
+      />
+    )
+  }
   if (ruta === '/gym') {
     const listo = gym.entrenos.tipo === 'listo' && gym.plan.tipo === 'listo'
     return (
@@ -263,7 +293,7 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
     )
   }
   return (
-    <PantallaMiDia usuario={usuario} pendientes={pendientes} billetera={billetera} descanso={descanso} gym={gym} navegar={navegar} enLinea={enLinea} nav={nav} cuenta={cuenta} aviso={aviso} />
+    <PantallaMiDia usuario={usuario} pendientes={pendientes} billetera={billetera} descanso={descanso} comidas={comidas} gym={gym} navegar={navegar} enLinea={enLinea} nav={nav} cuenta={cuenta} aviso={aviso} />
   )
 }
 

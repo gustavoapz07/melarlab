@@ -36,7 +36,7 @@ Meta: una app vacía pero real, instalada en los dos celulares, con cuentas y la
 - [x] Resumen del mes por categoría y una línea en Mi Día.
 
 ## Fase E · Salud
-- [ ] Gym, Comidas y Descanso con el mismo registro rápido.
+- [x] Gym, Comidas y Descanso con el mismo registro rápido.
 
 ## Fase F · El resto
 - [ ] Lista de deseos, Clientes y Contenido.
