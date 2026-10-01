@@ -25,6 +25,8 @@ import type { Idea } from './mi-dia/tipos.ts'
 import { useMiDia } from './mi-dia/useMiDia.ts'
 import { Enlace, NavModulos } from './navegacion.tsx'
 import { PantallaPendientes, type AccionesPendientes } from './pendientes/Pendientes.tsx'
+import { PantallaRadar } from './radar/Radar.tsx'
+import { useRadar } from './radar/radar.ts'
 import { useRuta, type Navegar } from './rutas.ts'
 import { AREAS, agrupar, cuandoVence, usePendientes } from './pendientes/usePendientes.ts'
 import { AvisoActualizacion } from './pwa/AvisoActualizacion.tsx'
@@ -217,6 +219,21 @@ function PantallaMiDia({ usuario, pendientes, billetera, deseos, descanso, comid
   )
 }
 
+/** El Radar solo se consulta mientras la pantalla está abierta: Mi Día no lo usa. */
+function RutaRadar({ usuario, enLinea, nav, cuenta, aviso }: Comun & { usuario: string }) {
+  const { estado, recargar } = useRadar(usuario)
+  return (
+    <PantallaRadar
+      estado={estado}
+      recargar={recargar}
+      enLinea={enLinea}
+      nav={nav}
+      cuenta={cuenta}
+      avisos={<Avisos enLinea={enLinea} aviso={aviso} sinConexion={estado.tipo === 'listo' ? 'Sin conexión. Lo que ves quedó guardado en el celular.' : 'Sin conexión.'} />}
+    />
+  )
+}
+
 /** Estudios solo consulta su tabla mientras la pantalla está abierta: Mi Día no la usa. */
 function RutaEstudios({ usuario, enLinea, nav, cuenta, aviso }: Comun & { usuario: string }) {
   const estudios = useEstudios(usuario)
@@ -373,6 +390,9 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
         )}
       />
     )
+  }
+  if (ruta === '/radar') {
+    return <RutaRadar usuario={usuario} enLinea={enLinea} nav={nav} cuenta={cuenta} aviso={aviso} />
   }
   if (ruta === '/estudios') {
     return <RutaEstudios usuario={usuario} enLinea={enLinea} nav={nav} cuenta={cuenta} aviso={aviso} />

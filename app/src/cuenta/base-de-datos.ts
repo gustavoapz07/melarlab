@@ -425,12 +425,40 @@ export type Database = {
         }
         Relationships: []
       }
+      radar: {
+        Row: {
+          actualizado: string
+          creado: string
+          datos: Json
+          fecha: string
+          id: string
+          usuario_id: string
+        }
+        Insert: {
+          actualizado?: string
+          creado?: string
+          datos: Json
+          fecha: string
+          id?: string
+          usuario_id: string
+        }
+        Update: {
+          actualizado?: string
+          creado?: string
+          datos?: Json
+          fecha?: string
+          id?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
       publicar_mi_dia: { Args: { datos: Json }; Returns: string }
+      publicar_radar: { Args: { datos: Json }; Returns: string }
     }
     Enums: {
       [_ in never]: never

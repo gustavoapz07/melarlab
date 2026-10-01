@@ -17,7 +17,7 @@ Mi sistema de automatizaciones para tener más orden en la vida. Lema: *vida con
 | Organización | Mi Día | Resumen de cada mañana con lo de hoy de todos los módulos | Activo |
 | | Pendientes | Cosas por hacer con fecha límite | Activo |
 | | Agenda | Reuniones y eventos; preparación antes de cada reunión | Planeado |
-| Aprendizaje | Radar | Contenido relevante sobre mis temas | Activo |
+| Aprendizaje | Radar | Contenido relevante sobre mis temas | Activo. La pantalla de la app espera a la rutina que lo publique |
 | | Estudios | Plan de estudios, clases, exámenes y avance de la carrera | Activo: plan y avance. Falta el calendario de la U |
 | Salud | Gym | Rutina y registro de entrenos | Activo |
 | | Comidas | Plan de comidas y lista del súper | Activo: falta la lista del súper |

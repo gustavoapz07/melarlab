@@ -124,7 +124,7 @@ a.t:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-th
 /* ---------- navegación entre módulos ---------- */
 /* Una línea siempre; si no caben, se desplaza de lado (navegacion.tsx). La raya de abajo es una sombra
    interior y no un borde, para que la raya de la pantalla actual no quede recortada al desplazar. */
-.modulos{position:relative;display:flex;gap:0 24px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;box-shadow:inset 0 -1px 0 var(--rule)}
+.modulos{position:relative;display:flex;gap:0 16px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;box-shadow:inset 0 -1px 0 var(--rule)}
 .modulos::-webkit-scrollbar{display:none}
 .modulos a{flex:none;display:inline-flex;align-items:center;min-height:44px;font:400 12px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;
  color:var(--ink3);text-decoration:none;border-bottom:2px solid transparent}
@@ -134,7 +134,6 @@ a.t:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-th
 .modulos[data-antes="true"]{-webkit-mask-image:linear-gradient(to right,transparent,#000 40px);mask-image:linear-gradient(to right,transparent,#000 40px)}
 .modulos[data-antes="true"][data-despues="true"]{-webkit-mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 40px),transparent);
  mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 40px),transparent)}
-@media (max-width:640px){.modulos{gap:0 20px}}
 main h1:focus{outline:none}
 .ver-mas{padding-top:4px;font:400 12px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em}
 .ver-mas a{display:inline-flex;align-items:center;min-height:44px;text-underline-offset:3px}
@@ -292,6 +291,16 @@ section.periodo{margin-top:36px}
 /* ---------- contenido ---------- */
 .mov.pieza{grid-template-columns:minmax(0,1fr) auto}
 .guardar-idea{display:grid;gap:8px;justify-items:start;margin-top:16px}
+
+/* ---------- radar ---------- */
+.pasos{margin:12px 0 0 20px;color:var(--ink2)}
+.pasos li{padding:4px 0}
+.anteriores{list-style:none}
+.anteriores li{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 12px;border-bottom:1px solid var(--rule)}
+.anteriores li:last-child{border-bottom:0}
+.anteriores .btn{margin-left:-8px}
+.anteriores .meta{margin-top:0}
+.fuentes-radar{margin-top:40px}
 
 @media (max-width:640px){
  .wrap{padding:16px 16px 40px}

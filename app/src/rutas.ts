@@ -1,4 +1,4 @@
-// Rutas de la app, con direcciones reales (/, /pendientes, /billetera, /deseos, /descanso, /comidas, /gym, /estudios, /clientes y /contenido) para que funcionen el botón de atrás y los
+// Rutas de la app, con direcciones reales (/, /pendientes, /billetera, /deseos, /descanso, /comidas, /gym, /estudios, /radar, /clientes y /contenido) para que funcionen el botón de atrás y los
 // enlaces. Cloudflare y el service worker devuelven index.html en cualquier dirección, así que también
 // abren sin internet. Los enlaces están en navegacion.tsx.
 import { useEffect, useRef, useState } from 'react'
@@ -12,6 +12,7 @@ export const RUTAS = [
   { ruta: '/comidas', nombre: 'Comidas' },
   { ruta: '/gym', nombre: 'Gym' },
   { ruta: '/estudios', nombre: 'Estudios' },
+  { ruta: '/radar', nombre: 'Radar' },
   { ruta: '/clientes', nombre: 'Clientes' },
   { ruta: '/contenido', nombre: 'Contenido' },
 ] as const

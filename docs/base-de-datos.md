@@ -1,8 +1,8 @@
 # La base de datos
 
-Los datos de la app viven en Supabase (Postgres). Hay una tabla por módulo, salida del esquema de la [hoja MelarLab](hoja-melarlab.md), que queda como antecedente, más `mi_dia`, donde la rutina de la mañana publica el resumen del día ([abajo](#mi-día)). Agenda y Radar no tienen tabla: leen Google Calendar, Gmail y la web.
+Los datos de la app viven en Supabase (Postgres). Hay una tabla por módulo, salida del esquema de la [hoja MelarLab](hoja-melarlab.md), que queda como antecedente, más `mi_dia`, donde la rutina de la mañana publica el resumen del día ([abajo](#mi-día)), y `radar`, donde la rutina de los domingos publica el Radar semanal ([abajo](#radar)). Agenda no tiene tabla: lee Google Calendar y Gmail.
 
-Las migraciones están en [`supabase/migrations/`](../supabase/migrations/) y las pruebas de seguridad en [`supabase/pruebas/`](../supabase/pruebas/): `rls.sql` para las tablas de los módulos y `mi_dia.sql` para Mi Día.
+Las migraciones están en [`supabase/migrations/`](../supabase/migrations/) y las pruebas de seguridad en [`supabase/pruebas/`](../supabase/pruebas/): `rls.sql` para las tablas de los módulos, `mi_dia.sql` para Mi Día y `radar.sql` para el Radar.
 
 ## Seguridad
 
@@ -53,10 +53,18 @@ flowchart LR
 - **Validaciones:** un objeto JSON de hasta 100 KB, solo las claves que conoce `render_brief.py`, secciones que son listas de hasta 50 elementos, titular de hasta 300 caracteres y una fecha de ayer, hoy o mañana en Honduras. Publicar otra vez el mismo día reemplaza al anterior.
 - **Lo que un secreto robado permite:** publicar un Mi Día falso de ayer, hoy o mañana, que la app muestra como texto. Nada más: no lee datos ni toca las otras tablas. Se cambia generando otro secreto y reemplazando la huella.
 
+## Radar
+
+El Radar semanal de IA se publica igual que Mi Día, con el mismo secreto: la rutina de los domingos llama a `publicar_radar(datos)` y la app solo lee.
+
+- **`radar`:** un registro por usuario y por fecha (el domingo en que salió), con el JSON del Radar en `datos` ([`app/src/radar/radar.ts`](../app/src/radar/radar.ts)): titular, resumen, de 1 a 12 novedades, una herramienta para probar, una idea de servicio y las fuentes. Se guardan todos; la app muestra los últimos 8. Cada usuario solo lee los suyos y nadie escribe directo.
+- **`publicar_radar(datos)`:** pide el mismo secreto que `publicar_mi_dia()` (la huella está en `privado.publicadores_mi_dia`). Valida las claves, el tamaño (100 KB), las listas y una fecha de la última semana. Publicar otra vez la misma fecha reemplaza al anterior. El aviso de Supabase sobre esta función también es esperado.
+- **La app revisa lo que llega:** una novedad sin título no se dibuja, los enlaces que no son https quedan como texto y nada se interpreta como HTML.
+
 ## Cambios
 
 Cada cambio de estructura es una migración nueva en `supabase/migrations/`, con la fecha y hora en el nombre. Después de aplicarla:
 
-1. Correr `supabase/pruebas/rls.sql` y `supabase/pruebas/mi_dia.sql` en el editor SQL de Supabase. Terminan con un error a propósito, así no guardan nada, y el mensaje trae el resultado: todo tiene que salir bien.
+1. Correr `supabase/pruebas/rls.sql`, `supabase/pruebas/mi_dia.sql` y `supabase/pruebas/radar.sql` en el editor SQL de Supabase. Terminan con un error a propósito, así no guardan nada, y el mensaje trae el resultado: todo tiene que salir bien.
 2. Revisar los avisos de seguridad y de rendimiento de Supabase.
 3. Volver a generar los tipos de la app (`app/src/cuenta/base-de-datos.ts`).

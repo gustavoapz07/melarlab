@@ -18,7 +18,8 @@
     "comidas": "node herramientas/comidas.js",
     "deseos": "node herramientas/deseos.js",
     "clientes": "node herramientas/clientes.js",
-    "contenido": "node herramientas/contenido.js"
+    "contenido": "node herramientas/contenido.js",
+    "radar": "node herramientas/radar.js"
   },
   "devDependencies": {
     "axe-core": "^4.13.0",

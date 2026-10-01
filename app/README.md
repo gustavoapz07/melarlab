@@ -2,7 +2,7 @@
 
 La app para celular de MelarLab. Es una app web instalable (PWA): se instala desde el navegador en Android y en iPhone, queda en la pantalla de inicio y funciona sin internet.
 
-Por ahora tiene cuentas (entrar, crear cuenta, recuperar la contraseña y cerrar sesión, con Supabase Auth) y diez pantallas:
+Por ahora tiene cuentas (entrar, crear cuenta, recuperar la contraseña y cerrar sesión, con Supabase Auth) y once pantallas:
 
 - **Mi Día**, con los datos reales de cada mañana: una rutina de Claude Code lo publica en la tabla `mi_dia` de Supabase de lunes a viernes a las 5:50 AM ([docs/base-de-datos.md](../docs/base-de-datos.md#mi-día)). También muestra los pendientes atrasados y de hoy.
 - **Pendientes** (`/pendientes`): agregar en segundos, marcar como hecho, editar y borrar, agrupados en atrasados, hoy, próximos y sin fecha.
@@ -11,6 +11,7 @@ Por ahora tiene cuentas (entrar, crear cuenta, recuperar la contraseña y cerrar
 - **Lista de deseos** (`/deseos`): lo que quiero comprar, con su precio, el precio al que lo compraría, la tienda y la prioridad. Lo que llega a ese precio va arriba y sale en Mi Día. Si en la Billetera hay ingresos del mes, dice qué alcanza con lo que sobra; al marcar algo como comprado, un toque lo anota como gasto. El precio se actualiza a mano.
 - **Comidas** (`/comidas`): qué hay de comer hoy (el momento sale de la hora), anotar o planear los próximos días con el mismo formulario, y cuántas comidas de la semana fueron hechas en casa. Una comida por momento del día: si ya hay, guardar la cambia. Mi Día dice qué hay de comer hoy.
 - **Gym** (`/gym`): el plan de la semana (qué rutina toca cada día; los días vacíos son de descanso) y anotar el entreno: si hoy toca, la rutina ya viene puesta y anotar es un toque. La semana de lunes a domingo muestra qué se entrenó y qué falta. Mi Día dice si hoy toca gym y cuántos van.
+- **Radar** (`/radar`): el Radar semanal de IA, que publica la rutina de los domingos en la tabla `radar`: las novedades con su letra pequeña y cómo aplicarlas, una herramienta para probar, una idea de servicio y los radares anteriores. Solo lectura.
 - **Clientes** (`/clientes`): un mini CRM. Cada negocio con su etapa (prospecto, contactado, en conversación, cliente o descartado), contacto, rubro, último contacto y próximo seguimiento. A quién toca escribirle hoy va arriba y sale en Mi Día. "Contacté hoy" lo anota en un toque.
 - **Contenido** (`/contenido`): de la idea a la publicación. Cada pieza con su formato, sus redes, la fecha en que sale y el enlace; un toque la pasa a producción y otro la marca como publicada. Lo que toca publicar hoy va arriba y sale en Mi Día, que además guarda su idea del día en Contenido con un toque. Publicar se hace en cada red, con revisión.
 - **Estudios** (`/estudios`): el plan de estudios por período, con el estado de cada materia (pendiente, cursando o aprobada), la nota y el avance de la carrera. La primera vez carga con un botón el plan de Ingeniería en Sistemas Computacionales de UNITEC (2025: 17 períodos y 230 créditos); también se pueden agregar materias una por una.
@@ -42,6 +43,9 @@ app/
 └── src/
     ├── main.tsx            arranque y fuentes
     ├── App.tsx             qué pantalla toca según la sesión y la dirección
+    ├── radar/
+    │   ├── radar.ts           la forma del Radar, revisar lo que llega (normalizar) y leer los últimos 8 de la tabla radar
+    │   └── Radar.tsx          la pantalla: novedades, para probar, idea de servicio y radares anteriores
     ├── rutas.ts            direcciones de la app (/, /pendientes y /estudios) y el foco al cambiar de pantalla
     ├── navegacion.tsx      barra de módulos y enlaces entre pantallas
     ├── Marco.tsx           encabezado, barra y pie de las pantallas que no son Mi Día
@@ -150,6 +154,7 @@ npm run pendientes -- http://localhost:4173 # agregar, grupos, hecho, editar, bo
 npm run billetera -- http://localhost:4173  # anotar con un toque, deshacer, montos, dólares, resumen, meses, editar, Mi Día y sin internet
 npm run descanso -- http://localhost:4173   # anotar la noche, cambiarla, horas que no sirven, noches cortas, semana, Mi Día y sin internet
 npm run deseos -- http://localhost:4173     # agregar, precios, llegó a tu precio, lo que sobra, comprado y gasto, Mi Día y sin internet
+npm run radar -- http://localhost:4173      # sin Radar, el último, datos raros (HTML, enlaces), los anteriores, uno viejo y sin internet
 npm run clientes -- http://localhost:4173   # agregar, toca hoy, atrasados, embudo, Contacté hoy y deshacer, etapas, Mi Día y sin internet
 npm run contenido -- http://localhost:4173  # anotar, toca publicar, producción, publicada, enlace, la idea del día de Mi Día y sin internet
 npm run comidas -- http://localhost:4173    # qué hay de comer, anotar, cambiar, planear, hechas en casa, Mi Día y sin internet
@@ -183,7 +188,7 @@ Si Playwright no encuentra Chromium, se le indica el navegador instalado con `CH
 - **Gym: el plan va en su propia tabla** (`gym_plan`, una rutina por día). Guardarlo es una sola llamada que agrega o cambia por día, y otra que borra los días que quedaron vacíos.
 - **Estudios: el avance sale de las materias.** El total es la suma de los créditos del plan y el porcentaje se redondea hacia abajo, para que no diga 100 % antes de tiempo. El promedio pondera por créditos las notas registradas; no es el índice oficial de la universidad.
 - **Todo un período de una vez, con Deshacer.** "Aprobar el período" y "Cursar el período" cambian sus materias en una sola llamada; el aviso trae Deshacer. Los períodos ya aprobados salen plegados.
-- **Direcciones reales.** Mi Día es `/`, Pendientes `/pendientes`, Billetera `/billetera`, Lista de deseos `/deseos`, Descanso `/descanso`, Comidas `/comidas`, Gym `/gym`, Estudios `/estudios`, Clientes `/clientes` y Contenido `/contenido`: el botón de atrás funciona y, al cambiar de pantalla, el foco va al título para que un lector de pantalla lo anuncie.
+- **Direcciones reales.** Mi Día es `/`, Pendientes `/pendientes`, Billetera `/billetera`, Lista de deseos `/deseos`, Descanso `/descanso`, Comidas `/comidas`, Gym `/gym`, Estudios `/estudios`, Radar `/radar`, Clientes `/clientes` y Contenido `/contenido`: el botón de atrás funciona y, al cambiar de pantalla, el foco va al título para que un lector de pantalla lo anuncie.
 - **Los datos de Mi Día se revisan antes de dibujarlos.** Lo que no tiene lo mínimo (un título, una hora que existe) se descarta, y el texto nunca se interpreta como HTML.
 - **Mensajes sin detalles internos.** Los errores de Supabase se muestran en español y cortos; crear cuenta y recuperar la contraseña no revelan si un correo ya está registrado.
 - **Política de contenido estricta.** Sin scripts ni estilos en línea y sin conexiones a otros dominios. Si algún día se cuela contenido ajeno (un correo, un evento), el navegador no lo ejecuta ni manda datos afuera.
