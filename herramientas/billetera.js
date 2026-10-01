@@ -345,8 +345,10 @@ const dato = (p, bloque, dt) => textoDe(bloque.locator('.cap div').filter({ has:
   await esperarTitulo(p, esperadoFinal);
   await p.getByRole('button', { name: `Ver ${nombreMes(otroMes(MES, -1))}` }).click();
   revisar((await textoDe(p.locator('#h-resumen'))).toLowerCase().startsWith(nombreMes(otroMes(MES, -1))), 'el botón lleva al mes anterior', await textoDe(p.locator('#h-resumen')));
-  revisar((await dato(p, p.locator('#resumen .bloque-moneda').first(), 'Gastos')) === 'L 500.00' && await p.getByText('Internet').isVisible(),
-    'con su resumen y sus movimientos');
+  // El día 1 del mes, el gasto de "ayer" de esta prueba cae en el mes anterior y también se suma ahí.
+  const mesAnterior = 500 + (AYER.startsWith(otroMes(MES, -1)) ? 30 : 0);
+  revisar((await dato(p, p.locator('#resumen .bloque-moneda').first(), 'Gastos')) === `L ${conCentavos(mesAnterior)}` && await p.getByText('Internet').isVisible(),
+    'con su resumen y sus movimientos', await dato(p, p.locator('#resumen .bloque-moneda').first(), 'Gastos'));
   revisar((await titulo(p)) === esperadoFinal, 'el título sigue diciendo lo de este mes');
   revisar(!(await p.getByText('Hace más de un año').count()), 'lo de hace más de 12 meses no se trae');
   await p.getByRole('button', { name: `Ver ${nombreMes(MES)}` }).click();
