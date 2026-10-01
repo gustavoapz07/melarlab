@@ -46,6 +46,12 @@ export function fechaEnPalabras(iso: string): string {
   return `${DIAS[diaSemana(f)]} ${f.d} de ${MESES[f.m - 1]}`
 }
 
+/** "2026-09-30" a "Mié 30 sep", para el encabezado de las pantallas. */
+export function fechaCorta(iso: string): string {
+  const f = leerFecha(iso)
+  return `${mayuscula(DIAS[diaSemana(f)].slice(0, 3))} ${f.d} ${MESES[f.m - 1].slice(0, 3)}`
+}
+
 /** "2026-09-30" más n días, como "AAAA-MM-DD". */
 export function sumarDiasISO(iso: string, n: number): string {
   const f = sumarDias(leerFecha(iso), n)

@@ -28,7 +28,7 @@ Meta: una app vacía pero real, instalada en los dos celulares, con cuentas y la
 
 ## Fase C · Pendientes y Estudios
 - [x] Pendientes: agregar, marcar como hecho y fecha límite; los de hoy salen en Mi Día.
-- [ ] Estudios: plan de estudios con el estado de cada materia y el avance de la carrera.
+- [x] Estudios: plan de estudios con el estado de cada materia y el avance de la carrera.
 - [ ] Calendario de la universidad (Canvas) suscrito en Google Calendar.
 
 ## Fase D · Billetera

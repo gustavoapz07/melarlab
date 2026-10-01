@@ -18,7 +18,7 @@ Cada módulo es una parte de la vida que MelarLab ordena. Los nombres son claros
 | Módulo | Qué hace | De dónde saca los datos |
 |---|---|---|
 | Radar | Contenido relevante sobre IA, desarrollo, marketing, diseño y negocios | Búsqueda web |
-| Estudios | Plan de estudios: clases, exámenes, materias y avance de la carrera | Tabla `estudios` y el calendario de la universidad |
+| Estudios | Plan de estudios: clases, exámenes, materias y avance de la carrera | Tabla `estudios`, desde la app (el plan de UNITEC se carga con un botón), y el calendario de la universidad |
 
 ## Salud
 | Módulo | Qué hace | De dónde saca los datos |

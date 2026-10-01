@@ -10,7 +10,8 @@
     "pwa": "node herramientas/pwa.js",
     "cuentas": "node herramientas/cuentas.js",
     "mi-dia": "node herramientas/mi-dia.js",
-    "pendientes": "node herramientas/pendientes.js"
+    "pendientes": "node herramientas/pendientes.js",
+    "estudios": "node herramientas/estudios.js"
   },
   "devDependencies": {
     "axe-core": "^4.13.0",

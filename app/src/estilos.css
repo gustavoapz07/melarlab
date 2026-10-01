@@ -131,7 +131,7 @@ main h1:focus{outline:none}
 .ver-mas{padding-top:4px;font:400 12px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em}
 .ver-mas a{display:inline-flex;align-items:center;min-height:44px;text-underline-offset:3px}
 
-/* ---------- pendientes ---------- */
+/* ---------- pendientes (las filas con casilla, .pend, también las usa Estudios) ---------- */
 .agregar{display:grid;gap:8px;max-width:640px;margin-top:24px}
 .btn:disabled{cursor:not-allowed;opacity:.55}
 .btn-lleno,.con-boton .btn-lleno{background:var(--ink);color:var(--bg);border-color:var(--ink);text-decoration:none}
@@ -171,6 +171,25 @@ main h1:focus{outline:none}
  .pend input[type="checkbox"]:checked{
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3 3 7-7' fill='none' stroke='%230b0b0b' stroke-width='2'/%3E%3C/svg%3E")}
 }
+
+/* ---------- estudios ---------- */
+.sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap;border:0}
+.avance{margin-top:20px;max-width:640px}
+.barra{display:block;width:100%;height:8px}
+.barra-fondo{fill:var(--rule)}
+.barra-c{fill:var(--ink3)}
+.avance .cap{margin-top:12px}
+.clave{display:inline-block;width:8px;height:8px;margin-right:6px;background:var(--ink);vertical-align:0}
+.clave-c{background:var(--ink3)}
+section.periodo{margin-top:36px}
+.mat .meta b{font-weight:600;color:var(--ink)}
+.mat > .alerta{grid-column:1/-1;margin:4px 0 6px}
+.periodo-acc{margin:4px 0 0 -8px}
+.periodo > .aviso,.periodo > .alerta{margin-top:8px}
+.otra-materia{margin-top:48px;border-top:1px solid var(--ink);padding-top:4px}
+.otra-materia .editor{margin-top:8px}
+.otro-plan{margin-top:32px}
+.otro-plan + .otra-materia{margin-top:12px}
 
 @media (max-width:640px){
  .wrap{padding:16px 16px 40px}

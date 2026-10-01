@@ -2,7 +2,7 @@
 // Agrupados por fecha límite: atrasados, hoy, próximos y sin fecha, más los hechos de las últimas dos semanas.
 import { useId, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { Marco } from '../Marco.tsx'
-import { DIAS, MESES, diaSemana, hoyEnElCelular, leerFecha, mayuscula, sumarDiasISO } from '../mi-dia/formato.ts'
+import { fechaCorta, hoyEnElCelular, sumarDiasISO } from '../mi-dia/formato.ts'
 import {
   AREAS, ESTADOS, LARGO, PRIORIDADES, agrupar, cuandoVence,
   type Area, type CambiosPendiente, type EstadoLista, type EstadoPendiente, type NuevoPendiente, type Pendiente, type Prioridad,
@@ -245,13 +245,12 @@ export function PantallaPendientes({ acciones, enLinea, nav, cuenta, avisos }: {
   const { estado } = acciones
   const [mensaje, avisar] = useState<string | null>(null)
   const hoy = hoyEnElCelular()
-  const f = leerFecha(hoy)
-  const fechaCorta = `${mayuscula(DIAS[diaSemana(f)].slice(0, 3))} ${f.d} ${MESES[f.m - 1].slice(0, 3)}`
+  const fecha = fechaCorta(hoy)
   const fila = (p: Pendiente) => <Fila key={p.id} p={p} hoy={hoy} enLinea={enLinea} acciones={acciones} avisar={avisar} />
 
   if (estado.tipo !== 'listo') {
     return (
-      <Marco nombre="Pendientes" fecha={fechaCorta} nav={nav} cuenta={cuenta}>
+      <Marco nombre="Pendientes" fecha={fecha} nav={nav} cuenta={cuenta}>
         {avisos}
         <h1 tabIndex={-1}>{estado.tipo === 'cargando' ? 'Pendientes' : 'No se pudieron cargar tus pendientes'}</h1>
         <p className="bajada" role={estado.tipo === 'cargando' ? 'status' : undefined}>
@@ -267,7 +266,7 @@ export function PantallaPendientes({ acciones, enLinea, nav, cuenta, avisos }: {
   const porHacer = g.atrasados.length + g.hoy.length + g.proximos.length + g.sinFecha.length
 
   return (
-    <Marco nombre="Pendientes" fecha={fechaCorta} nav={nav} cuenta={cuenta}>
+    <Marco nombre="Pendientes" fecha={fecha} nav={nav} cuenta={cuenta}>
       {avisos}
       {estado.fallo && enLinea && (
         <p className="aviso">

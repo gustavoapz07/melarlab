@@ -1,11 +1,11 @@
 // Pendientes del usuario, desde la tabla pendientes de Supabase (docs/base-de-datos.md).
 // Las reglas de la base solo le dejan a cada usuario ver, agregar, cambiar y borrar lo suyo, y
-// validan lo mismo que la app (largos, listas cerradas). Se guarda una copia en el celular para ver
-// la lista sin internet; para escribir hace falta red. Cerrar sesión borra la copia.
-import { useCallback, useEffect, useRef, useState } from 'react'
+// validan lo mismo que la app (largos, listas cerradas). La copia en el celular y cuándo se consulta
+// están en useTabla.ts: sin internet se ve la lista guardada y para escribir hace falta red.
 import { supabase } from '../cuenta/supabase.ts'
-import { PREFIJOS, guardar, leerGuardado } from '../guardado.ts'
+import { PREFIJOS } from '../guardado.ts'
 import { fechaEnPalabras, mayuscula, sumarDiasISO } from '../mi-dia/formato.ts'
+import { esDe, mensajeDeFalla, useTabla, type EstadoTabla } from '../useTabla.ts'
 
 export const AREAS = { universidad: 'Universidad', personal: 'Personal', trabajo: 'Trabajo', melarlab: 'MelarLab' } as const
 export const PRIORIDADES = { alta: 'Alta', media: 'Media', baja: 'Baja' } as const
@@ -28,12 +28,7 @@ export interface Pendiente {
 
 export type CambiosPendiente = Partial<Pick<Pendiente, 'tarea' | 'area' | 'fecha_limite' | 'prioridad' | 'estado' | 'notas'>>
 export type NuevoPendiente = Pick<Pendiente, 'tarea' | 'area' | 'fecha_limite' | 'prioridad'>
-
-export type EstadoLista =
-  | { tipo: 'cargando' }
-  /** `fallo`: la última consulta no salió y lo que se ve es la copia guardada. */
-  | { tipo: 'listo'; lista: Pendiente[]; fallo: boolean }
-  | { tipo: 'error' }
+export type EstadoLista = EstadoTabla<Pendiente>
 
 /** Largos máximos: los mismos de la base. */
 export const LARGO = { tarea: 500, notas: 2000 } as const
@@ -41,10 +36,6 @@ export const LARGO = { tarea: 500, notas: 2000 } as const
 const COLUMNAS = 'id, tarea, area, fecha_limite, prioridad, estado, notas, creado, actualizado'
 /** Los hechos se siguen viendo dos semanas, por si hay que deshacer alguno. */
 const DIAS_DE_HECHOS = 14
-const ESPERA_MINIMA = 60_000
-const LIMITE_CONSULTA = 15_000
-
-const esDe = <T extends object>(opciones: T, v: unknown): v is keyof T => typeof v === 'string' && v in opciones
 
 /** Descarta filas que no tienen la forma esperada (por ejemplo, una copia guardada vieja o dañada). */
 function limpiar(v: unknown): Pendiente[] | null {
@@ -57,62 +48,18 @@ function limpiar(v: unknown): Pendiente[] | null {
     && typeof f.creado === 'string' && typeof f.actualizado === 'string')
 }
 
-export function mensajeDeFalla(): string {
-  return navigator.onLine ? 'No se pudo guardar. Intenta de nuevo.' : 'Sin conexión. Para esto hace falta internet.'
+function consultar(senal: AbortSignal) {
+  const desde = new Date(Date.now() - DIAS_DE_HECHOS * 86400000).toISOString()
+  return supabase
+    .from('pendientes')
+    .select(COLUMNAS)
+    .or(`estado.neq.hecho,actualizado.gte.${desde}`)
+    .order('creado', { ascending: true })
+    .abortSignal(senal)
 }
 
 export function usePendientes(usuario: string) {
-  const clave = PREFIJOS.pendientes + usuario
-  const [estado, setEstado] = useState<EstadoLista>(() => {
-    const guardada = limpiar(leerGuardado(clave))
-    if (guardada) return { tipo: 'listo', lista: guardada, fallo: false }
-    return navigator.onLine ? { tipo: 'cargando' } : { tipo: 'error' }
-  })
-  const ultimaConsulta = useRef(0)
-
-  /** Cambia la lista y su copia guardada a la vez. */
-  const actualizar = useCallback((cambio: (lista: Pendiente[]) => Pendiente[]) => {
-    setEstado((antes) => {
-      const lista = cambio(antes.tipo === 'listo' ? antes.lista : [])
-      guardar(clave, lista)
-      return { tipo: 'listo', lista, fallo: false }
-    })
-  }, [clave])
-
-  const cargar = useCallback(async () => {
-    ultimaConsulta.current = Date.now()
-    const desde = new Date(Date.now() - DIAS_DE_HECHOS * 86400000).toISOString()
-    const { data, error } = await supabase
-      .from('pendientes')
-      .select(COLUMNAS)
-      .or(`estado.neq.hecho,actualizado.gte.${desde}`)
-      .order('creado', { ascending: true })
-      .abortSignal(AbortSignal.timeout(LIMITE_CONSULTA))
-    const lista = error ? null : limpiar(data)
-    if (!lista) {
-      setEstado((antes) => (antes.tipo === 'listo' ? { ...antes, fallo: true } : { tipo: 'error' }))
-      return
-    }
-    actualizar(() => lista)
-  }, [actualizar])
-
-  useEffect(() => {
-    // Sin red no se consulta: Supabase se quedaría reintentando renovar el permiso. Se consulta al volver la red.
-    // cargar() solo cambia el estado después de la respuesta de Supabase, no durante el efecto.
-    // oxlint-disable-next-line react/set-state-in-effect
-    if (navigator.onLine) void cargar()
-    const alVolver = () => {
-      const toca = Date.now() - ultimaConsulta.current > ESPERA_MINIMA
-      if (document.visibilityState === 'visible' && navigator.onLine && toca) void cargar()
-    }
-    const alConectar = () => void cargar()
-    document.addEventListener('visibilitychange', alVolver)
-    window.addEventListener('online', alConectar)
-    return () => {
-      document.removeEventListener('visibilitychange', alVolver)
-      window.removeEventListener('online', alConectar)
-    }
-  }, [cargar])
+  const { estado, actualizar, recargar } = useTabla(PREFIJOS.pendientes + usuario, consultar, limpiar)
 
   /** Agrega un pendiente. Devuelve un mensaje si no se pudo, o null si salió bien. */
   async function agregar(nuevo: NuevoPendiente): Promise<string | null> {
@@ -147,7 +94,7 @@ export function usePendientes(usuario: string) {
     return null
   }
 
-  return { estado, agregar, cambiar, borrar, recargar: () => { if (navigator.onLine) void cargar() } }
+  return { estado, agregar, cambiar, borrar, recargar }
 }
 
 // ---------- orden, grupos y fechas ----------

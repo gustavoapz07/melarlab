@@ -5,6 +5,7 @@
 export const PREFIJOS = {
   miDia: 'melarlab.mi-dia.',
   pendientes: 'melarlab.pendientes.',
+  estudios: 'melarlab.estudios.',
 } as const
 
 export function leerGuardado(clave: string): unknown {

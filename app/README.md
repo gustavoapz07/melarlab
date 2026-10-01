@@ -2,10 +2,11 @@
 
 La app para celular de MelarLab. Es una app web instalable (PWA): se instala desde el navegador en Android y en iPhone, queda en la pantalla de inicio y funciona sin internet.
 
-Por ahora tiene cuentas (entrar, crear cuenta, recuperar la contraseña y cerrar sesión, con Supabase Auth) y dos pantallas:
+Por ahora tiene cuentas (entrar, crear cuenta, recuperar la contraseña y cerrar sesión, con Supabase Auth) y tres pantallas:
 
 - **Mi Día**, con los datos reales de cada mañana: una rutina de Claude Code lo publica en la tabla `mi_dia` de Supabase de lunes a viernes a las 5:50 AM ([docs/base-de-datos.md](../docs/base-de-datos.md#mi-día)). También muestra los pendientes atrasados y de hoy.
 - **Pendientes** (`/pendientes`): agregar en segundos, marcar como hecho, editar y borrar, agrupados en atrasados, hoy, próximos y sin fecha.
+- **Estudios** (`/estudios`): el plan de estudios por período, con el estado de cada materia (pendiente, cursando o aprobada), la nota y el avance de la carrera. La primera vez carga con un botón el plan de Ingeniería en Sistemas Computacionales de UNITEC (2025: 17 períodos y 230 créditos); también se pueden agregar materias una por una.
 
 Las pantallas de los demás módulos llegan en los siguientes pasos de la [hoja de ruta](../docs/hoja-de-ruta.md).
 
@@ -34,10 +35,11 @@ app/
 └── src/
     ├── main.tsx            arranque y fuentes
     ├── App.tsx             qué pantalla toca según la sesión y la dirección
-    ├── rutas.ts            direcciones de la app (/ y /pendientes) y el foco al cambiar de pantalla
+    ├── rutas.ts            direcciones de la app (/, /pendientes y /estudios) y el foco al cambiar de pantalla
     ├── navegacion.tsx      barra de módulos y enlaces entre pantallas
     ├── Marco.tsx           encabezado, barra y pie de las pantallas que no son Mi Día
     ├── guardado.ts         copias en el celular para ver sin internet; cerrar sesión las borra
+    ├── useTabla.ts         una tabla de Supabase con su copia en el celular: cuándo consulta y cómo se actualiza (lo usan los módulos)
     ├── cuenta/
     │   ├── supabase.ts     cliente de Supabase (solo la clave publicable)
     │   ├── base-de-datos.ts  tipos de las tablas (generado)
@@ -56,6 +58,10 @@ app/
     ├── pendientes/
     │   ├── usePendientes.ts   leer, agregar, cambiar y borrar en la tabla pendientes; grupos por fecha
     │   └── Pendientes.tsx     la pantalla: agregar, lista por grupos, editar y borrar
+    ├── estudios/
+    │   ├── plan-unitec.ts     el plan oficial de UNITEC (información pública), listo para cargarlo de una vez
+    │   ├── useEstudios.ts     leer, agregar, cambiar (una o un período entero) y borrar en la tabla estudios; avance y períodos
+    │   └── Estudios.tsx       la pantalla: cargar el plan, avance, períodos, marcar aprobadas, editar y agregar
     └── pwa/
         ├── AvisoActualizacion.tsx   "Lista para usar sin internet" y "Hay una versión nueva"
         ├── Instalar.tsx             botón de instalar (Android) o instrucciones (iPhone)
@@ -110,6 +116,7 @@ npm run pwa -- http://localhost:4173        # cabeceras de seguridad, instalable
 npm run cuentas -- http://localhost:4173    # entrar, crear cuenta, recuperar, cerrar sesión y sin internet
 npm run mi-dia -- http://localhost:4173     # Mi Día de hoy, de otro día, todavía ninguno, errores, sin internet y datos raros
 npm run pendientes -- http://localhost:4173 # agregar, grupos, hecho, editar, borrar, errores, sin internet, Mi Día y navegación
+npm run estudios -- http://localhost:4173   # cargar el plan, aprobar y deshacer, cursando, notas, código repetido, errores y sin internet
 npm run auditar -- http://localhost:4173    # accesibilidad WCAG 2.1 AA en claro y oscuro, a 390 y 1280 px
 npm run capturas -- http://localhost:4173 docs/capturas/app
 ```
@@ -127,7 +134,9 @@ Si Playwright no encuentra Chromium, se le indica el navegador instalado con `CH
 - **Mi Día real, con copia en el celular.** La app pide el Mi Día más reciente (las reglas de la base solo le dan el suyo a cada usuario) y guarda una copia para abrirlo sin internet. Vuelve a consultar al abrir la app y al volver la red. Si el más reciente es de otro día (fin de semana o antes de las 5:50), lo dice. Cerrar sesión borra la copia.
 - **Pendientes: para escribir hace falta internet.** Sin red se ve la última lista guardada, pero agregar, marcar y editar se desactivan. Así no hay cambios guardados a medias que después choquen con la base.
 - **Marcar como hecho se ve al instante.** Si la base no lo acepta, el pendiente vuelve a como estaba y un aviso lo dice arriba de la lista.
-- **Direcciones reales.** Mi Día es `/` y Pendientes `/pendientes`: el botón de atrás funciona y, al cambiar de pantalla, el foco va al título para que un lector de pantalla lo anuncie.
+- **Estudios: el avance sale de las materias.** El total es la suma de los créditos del plan y el porcentaje se redondea hacia abajo, para que no diga 100 % antes de tiempo. El promedio pondera por créditos las notas registradas; no es el índice oficial de la universidad.
+- **Todo un período de una vez, con Deshacer.** "Aprobar el período" y "Cursar el período" cambian sus materias en una sola llamada; el aviso trae Deshacer. Los períodos ya aprobados salen plegados.
+- **Direcciones reales.** Mi Día es `/`, Pendientes `/pendientes` y Estudios `/estudios`: el botón de atrás funciona y, al cambiar de pantalla, el foco va al título para que un lector de pantalla lo anuncie.
 - **Los datos de Mi Día se revisan antes de dibujarlos.** Lo que no tiene lo mínimo (un título, una hora que existe) se descarta, y el texto nunca se interpreta como HTML.
 - **Mensajes sin detalles internos.** Los errores de Supabase se muestran en español y cortos; crear cuenta y recuperar la contraseña no revelan si un correo ya está registrado.
 - **Política de contenido estricta.** Sin scripts ni estilos en línea y sin conexiones a otros dominios. Si algún día se cuela contenido ajeno (un correo, un evento), el navegador no lo ejecuta ni manda datos afuera.

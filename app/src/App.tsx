@@ -2,6 +2,8 @@ import type { ReactNode } from 'react'
 import { Entrada, NuevaContrasena } from './cuenta/Entrada.tsx'
 import { configurada } from './cuenta/supabase.ts'
 import { useSesion } from './cuenta/useSesion.ts'
+import { PantallaEstudios } from './estudios/Estudios.tsx'
+import { useEstudios } from './estudios/useEstudios.ts'
 import { Marco } from './Marco.tsx'
 import { fechaEnPalabras, hoyEnElCelular } from './mi-dia/formato.ts'
 import { Marca, MiDia } from './mi-dia/MiDia.tsx'
@@ -103,6 +105,25 @@ function PantallaMiDia({ usuario, pendientes, navegar, enLinea, nav, cuenta, avi
   )
 }
 
+/** Estudios solo consulta su tabla mientras la pantalla está abierta: Mi Día no la usa. */
+function RutaEstudios({ usuario, enLinea, nav, cuenta, aviso }: Comun & { usuario: string }) {
+  const estudios = useEstudios(usuario)
+  return (
+    <PantallaEstudios
+      acciones={estudios}
+      enLinea={enLinea}
+      nav={nav}
+      cuenta={cuenta}
+      avisos={(
+        <Avisos enLinea={enLinea} aviso={aviso}
+          sinConexion={estudios.estado.tipo === 'listo'
+            ? 'Sin conexión. Ves lo último guardado; para cambiar algo hace falta internet.'
+            : 'Sin conexión.'} />
+      )}
+    />
+  )
+}
+
 /** Con la sesión abierta: la pantalla que toca según la dirección. */
 function Dentro({ usuario, correo, aviso, enLinea, salir }: {
   usuario: string
@@ -122,6 +143,9 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
     </>
   )
 
+  if (ruta === '/estudios') {
+    return <RutaEstudios usuario={usuario} enLinea={enLinea} nav={nav} cuenta={cuenta} aviso={aviso} />
+  }
   if (ruta === '/pendientes') {
     return (
       <PantallaPendientes
