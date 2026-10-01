@@ -146,11 +146,13 @@ interface Props {
   salud?: Linea[]
   /** Una línea por módulo de dinero (Billetera y Lista de deseos), en vivo, con su enlace. */
   dinero?: Linea[]
+  /** Una línea por módulo de negocio (Clientes, y después Contenido), en vivo, con su enlace. */
+  negocio?: Linea[]
   /** Cuenta y botón de cerrar sesión, en el pie. */
   cuenta?: ReactNode
 }
 
-export function MiDia({ datos, avisos, nav, pendientes, salud, dinero, cuenta }: Props) {
+export function MiDia({ datos, avisos, nav, pendientes, salud, dinero, negocio, cuenta }: Props) {
   const fecha = leerFecha(datos.fecha)
   const ubicacion = datos.ubicacion ?? UBICACION_EJEMPLO
   const { salida, puesta } = horasDelSol(fecha, ubicacion.lat, ubicacion.lon, ubicacion.tz)
@@ -185,6 +187,9 @@ export function MiDia({ datos, avisos, nav, pendientes, salud, dinero, cuenta }:
   }
   if (dinero?.length) {
     secciones.push({ id: 'dinero', etiqueta: 'Dinero', titulo: 'Dinero', cuenta: dinero.length, contenido: <Lineas lineas={dinero} /> })
+  }
+  if (negocio?.length) {
+    secciones.push({ id: 'negocio', etiqueta: 'Negocio', titulo: 'Negocio', cuenta: negocio.length, contenido: <Lineas lineas={negocio} /> })
   }
   if (datos.resuelto?.length) {
     secciones.push({ id: 'resuelto', etiqueta: 'Resuelto', titulo: 'Resuelto', cuenta: datos.resuelto.length, contenido: <Items lista={datos.resuelto} extra={false} /> })

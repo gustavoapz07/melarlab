@@ -27,16 +27,23 @@ export function NavModulos({ ruta, navegar }: { ruta: Ruta; navegar: Navegar }) 
   useEffect(() => {
     const nav = ref.current
     if (!nav) return
-    const actual = nav.querySelector<HTMLElement>('[aria-current="page"]')
-    if (actual) nav.scrollLeft = actual.offsetLeft - (nav.clientWidth - actual.offsetWidth) / 2
     const marcar = () => {
       nav.dataset.antes = String(nav.scrollLeft > 1)
       nav.dataset.despues = String(nav.scrollLeft + nav.clientWidth < nav.scrollWidth - 1)
     }
-    marcar()
+    const centrar = () => {
+      const actual = nav.querySelector<HTMLElement>('[aria-current="page"]')
+      if (actual) nav.scrollLeft = actual.offsetLeft - (nav.clientWidth - actual.offsetWidth) / 2
+      marcar()
+    }
+    centrar()
+    // Con la letra definitiva los nombres miden distinto: se vuelve a centrar cuando termina de cargar.
+    let vigente = true
+    void document.fonts?.ready.then(() => { if (vigente) centrar() })
     nav.addEventListener('scroll', marcar, { passive: true })
     window.addEventListener('resize', marcar)
     return () => {
+      vigente = false
       nav.removeEventListener('scroll', marcar)
       window.removeEventListener('resize', marcar)
     }

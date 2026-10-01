@@ -2,6 +2,8 @@ import type { ReactNode } from 'react'
 import { PantallaBilletera, type AccionesBilletera } from './billetera/Billetera.tsx'
 import { resumirMes, totalEnPalabras, useBilletera } from './billetera/useBilletera.ts'
 import { Entrada, NuevaContrasena } from './cuenta/Entrada.tsx'
+import { PantallaClientes, type AccionesClientes } from './clientes/Clientes.tsx'
+import { lineaDeClientes, useClientes } from './clientes/useClientes.ts'
 import { PantallaComidas, type AccionesComidas } from './comidas/Comidas.tsx'
 import { caseras, delDia, enPalabras, useComidas } from './comidas/useComidas.ts'
 import { configurada } from './cuenta/supabase.ts'
@@ -76,6 +78,14 @@ function lineasDeDinero(billetera: AccionesBilletera, deseos: AccionesDeseos, ho
   return lineas
 }
 
+/** Las líneas de negocio de Mi Día: a quién toca escribirle hoy (solo si a alguien). */
+function lineasDeNegocio(clientes: AccionesClientes, hoy: string, navegar: Navegar) {
+  const lineas: Linea[] = []
+  const toca = clientes.estado.tipo === 'listo' ? lineaDeClientes(clientes.estado.lista, hoy) : null
+  if (toca) lineas.push({ modulo: 'Clientes', texto: toca, enlace: <Enlace a="/clientes" navegar={navegar}>Ver los clientes</Enlace> })
+  return lineas
+}
+
 /** Lo que sobra este mes en la Billetera (ingresos menos gastos), por moneda. Solo las monedas donde sobra algo. */
 function sobraDelMes(billetera: AccionesBilletera, hoy: string): Record<string, number> {
   if (billetera.estado.tipo !== 'listo') return {}
@@ -120,7 +130,7 @@ function lineasDeSalud(descanso: AccionesDescanso, comidas: AccionesComidas, gym
 }
 
 /** Mi Día real, de la tabla mi_dia, con los pendientes de hoy. Mientras no hay uno, una pantalla corta que explica por qué. */
-function PantallaMiDia({ usuario, pendientes, billetera, deseos, descanso, comidas, gym, navegar, enLinea, nav, cuenta, aviso }: Comun & {
+function PantallaMiDia({ usuario, pendientes, billetera, deseos, descanso, comidas, gym, clientes, navegar, enLinea, nav, cuenta, aviso }: Comun & {
   usuario: string
   pendientes: AccionesPendientes
   billetera: AccionesBilletera
@@ -128,6 +138,7 @@ function PantallaMiDia({ usuario, pendientes, billetera, deseos, descanso, comid
   descanso: AccionesDescanso
   comidas: AccionesComidas
   gym: AccionesGym
+  clientes: AccionesClientes
   navegar: Navegar
 }) {
   const { estado, recargar } = useMiDia(usuario)
@@ -148,6 +159,7 @@ function PantallaMiDia({ usuario, pendientes, billetera, deseos, descanso, comid
         }}
         salud={lineasDeSalud(descanso, comidas, gym, hoy, navegar)}
         dinero={lineasDeDinero(billetera, deseos, hoy, navegar)}
+        negocio={lineasDeNegocio(clientes, hoy, navegar)}
         avisos={(
           <Avisos enLinea={enLinea} aviso={aviso} sinConexion="Sin conexión. Lo que ves quedó guardado en el celular.">
             {estado.fallo && enLinea && (
@@ -222,6 +234,7 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
   const descanso = useDescanso(usuario)
   const comidas = useComidas(usuario)
   const gym = useGym(usuario)
+  const clientes = useClientes(usuario)
   const nav = <NavModulos ruta={ruta} navegar={navegar} />
   const cuenta = (
     <>
@@ -310,6 +323,22 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
       />
     )
   }
+  if (ruta === '/clientes') {
+    return (
+      <PantallaClientes
+        acciones={clientes}
+        enLinea={enLinea}
+        nav={nav}
+        cuenta={cuenta}
+        avisos={(
+          <Avisos enLinea={enLinea} aviso={aviso}
+            sinConexion={clientes.estado.tipo === 'listo'
+              ? 'Sin conexión. Ves lo último guardado; para cambiar algo hace falta internet.'
+              : 'Sin conexión.'} />
+        )}
+      />
+    )
+  }
   if (ruta === '/estudios') {
     return <RutaEstudios usuario={usuario} enLinea={enLinea} nav={nav} cuenta={cuenta} aviso={aviso} />
   }
@@ -330,7 +359,7 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
     )
   }
   return (
-    <PantallaMiDia usuario={usuario} pendientes={pendientes} billetera={billetera} deseos={deseos} descanso={descanso} comidas={comidas} gym={gym} navegar={navegar} enLinea={enLinea} nav={nav} cuenta={cuenta} aviso={aviso} />
+    <PantallaMiDia usuario={usuario} pendientes={pendientes} billetera={billetera} deseos={deseos} descanso={descanso} comidas={comidas} gym={gym} clientes={clientes} navegar={navegar} enLinea={enLinea} nav={nav} cuenta={cuenta} aviso={aviso} />
   )
 }
 

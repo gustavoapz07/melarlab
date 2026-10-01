@@ -79,7 +79,7 @@ async function supabaseSimulado(route) {
   if (u.pathname === '/rest/v1/pendientes') return json(route, 200, []);
   if (u.pathname === '/rest/v1/descanso') return json(route, 200, []);
   if (u.pathname === '/rest/v1/gym' || u.pathname === '/rest/v1/gym_plan') return json(route, 200, []);
-  if (u.pathname === '/rest/v1/comidas' || u.pathname === '/rest/v1/lista_deseos') return json(route, 200, []);
+  if (u.pathname === '/rest/v1/comidas' || u.pathname === '/rest/v1/lista_deseos' || u.pathname === '/rest/v1/clientes') return json(route, 200, []);
   if (u.pathname === '/rest/v1/billetera') {
     let cuerpo = null;
     try { cuerpo = JSON.parse(req.postData() || 'null'); } catch { /* sin cuerpo */ }
