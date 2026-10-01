@@ -91,6 +91,10 @@ export default defineConfig(({ mode }) => {
             { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
             { src: 'maskable-icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
           ],
+          // Al mantener presionado el ícono (Android): anotar un gasto sin pasar por Mi Día.
+          shortcuts: [
+            { name: 'Anotar un gasto', short_name: 'Gasto', url: '/billetera', icons: [{ src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' }] },
+          ],
         },
         workbox: {
           // Todo lo necesario para abrir la app sin internet, fuentes incluidas.

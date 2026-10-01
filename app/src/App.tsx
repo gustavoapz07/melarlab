@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react'
+import { PantallaBilletera, type AccionesBilletera } from './billetera/Billetera.tsx'
+import { resumirMes, totalEnPalabras, useBilletera } from './billetera/useBilletera.ts'
 import { Entrada, NuevaContrasena } from './cuenta/Entrada.tsx'
 import { configurada } from './cuenta/supabase.ts'
 import { useSesion } from './cuenta/useSesion.ts'
@@ -44,10 +46,25 @@ function Avisos({ enLinea, aviso, sinConexion, children }: { enLinea: boolean; a
   )
 }
 
+/** La línea de la billetera en Mi Día: lo gastado en el mes y hoy. Nada si todavía no se anotó ningún movimiento. */
+function lineaDeBilletera(billetera: AccionesBilletera, hoy: string, navegar: Navegar) {
+  if (billetera.estado.tipo !== 'listo' || !billetera.estado.lista.length) return undefined
+  const { lista } = billetera.estado
+  const mes = hoy.slice(0, 7)
+  const delMes = totalEnPalabras(resumirMes(lista, mes), 'gastos')
+  const deHoy = totalEnPalabras(resumirMes(lista.filter((m) => m.fecha === hoy), mes), 'gastos')
+  return {
+    texto: `${delMes ? `Llevas ${delMes} en gastos este mes` : 'Nada gastado este mes'}; hoy, ${deHoy ?? 'nada'}.`,
+    cuenta: lista.filter((m) => m.tipo === 'gasto' && m.fecha.startsWith(mes)).length,
+    enlace: <Enlace a="/billetera" navegar={navegar}>Abrir la billetera</Enlace>,
+  }
+}
+
 /** Mi Día real, de la tabla mi_dia, con los pendientes de hoy. Mientras no hay uno, una pantalla corta que explica por qué. */
-function PantallaMiDia({ usuario, pendientes, navegar, enLinea, nav, cuenta, aviso }: Comun & {
+function PantallaMiDia({ usuario, pendientes, billetera, navegar, enLinea, nav, cuenta, aviso }: Comun & {
   usuario: string
   pendientes: AccionesPendientes
+  billetera: AccionesBilletera
   navegar: Navegar
 }) {
   const { estado, recargar } = useMiDia(usuario)
@@ -66,6 +83,7 @@ function PantallaMiDia({ usuario, pendientes, navegar, enLinea, nav, cuenta, avi
           lista: deHoy.map((p) => ({ titulo: p.tarea, texto: p.notas ?? undefined, fuente: AREAS[p.area], cuando: cuandoVence(p, hoy) })),
           enlace: <Enlace a="/pendientes" navegar={navegar}>Ver todos los pendientes</Enlace>,
         }}
+        billetera={lineaDeBilletera(billetera, hoy, navegar)}
         avisos={(
           <Avisos enLinea={enLinea} aviso={aviso} sinConexion="Sin conexión. Lo que ves quedó guardado en el celular.">
             {estado.fallo && enLinea && (
@@ -133,8 +151,9 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
   salir: () => void
 }) {
   const [ruta, navegar] = useRuta()
-  // Una sola lista de pendientes para las dos pantallas: lo que cambia en una se ve en la otra.
+  // Una sola lista de pendientes y una sola billetera para Mi Día y su pantalla: lo que cambia en una se ve en la otra.
   const pendientes = usePendientes(usuario)
+  const billetera = useBilletera(usuario)
   const nav = <NavModulos ruta={ruta} navegar={navegar} />
   const cuenta = (
     <>
@@ -143,6 +162,22 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
     </>
   )
 
+  if (ruta === '/billetera') {
+    return (
+      <PantallaBilletera
+        acciones={billetera}
+        enLinea={enLinea}
+        nav={nav}
+        cuenta={cuenta}
+        avisos={(
+          <Avisos enLinea={enLinea} aviso={aviso}
+            sinConexion={billetera.estado.tipo === 'listo'
+              ? 'Sin conexión. Ves lo último guardado; para anotar hace falta internet.'
+              : 'Sin conexión.'} />
+        )}
+      />
+    )
+  }
   if (ruta === '/estudios') {
     return <RutaEstudios usuario={usuario} enLinea={enLinea} nav={nav} cuenta={cuenta} aviso={aviso} />
   }
@@ -163,7 +198,7 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
     )
   }
   return (
-    <PantallaMiDia usuario={usuario} pendientes={pendientes} navegar={navegar} enLinea={enLinea} nav={nav} cuenta={cuenta} aviso={aviso} />
+    <PantallaMiDia usuario={usuario} pendientes={pendientes} billetera={billetera} navegar={navegar} enLinea={enLinea} nav={nav} cuenta={cuenta} aviso={aviso} />
   )
 }
 

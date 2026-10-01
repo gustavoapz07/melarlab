@@ -60,6 +60,7 @@ async function supabaseSimulado(route) {
   if (servidor.sinRed) return route.abort('internetdisconnected');
 
   if (u.pathname === '/rest/v1/mi_dia') return json(route, 200, [{ datos: { ...EJEMPLO, fecha: HOY } }]);
+  if (u.pathname === '/rest/v1/billetera') return json(route, 200, []);
   if (u.pathname === '/rest/v1/pendientes') {
     let cuerpo = null;
     try { cuerpo = JSON.parse(req.postData() || 'null'); } catch { /* sin cuerpo */ }

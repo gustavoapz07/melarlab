@@ -131,11 +131,13 @@ interface Props {
   nav?: ReactNode
   /** Pendientes atrasados y de hoy (del módulo Pendientes, en vivo), con un enlace a la lista completa. */
   pendientes?: { lista: Elemento[]; enlace: ReactNode }
+  /** Una línea con lo gastado en el mes (del módulo Billetera, en vivo): cuántos gastos y el enlace. */
+  billetera?: { texto: string; cuenta: number; enlace: ReactNode }
   /** Cuenta y botón de cerrar sesión, en el pie. */
   cuenta?: ReactNode
 }
 
-export function MiDia({ datos, avisos, nav, pendientes, cuenta }: Props) {
+export function MiDia({ datos, avisos, nav, pendientes, billetera, cuenta }: Props) {
   const fecha = leerFecha(datos.fecha)
   const ubicacion = datos.ubicacion ?? UBICACION_EJEMPLO
   const { salida, puesta } = horasDelSol(fecha, ubicacion.lat, ubicacion.lon, ubicacion.tz)
@@ -161,6 +163,12 @@ export function MiDia({ datos, avisos, nav, pendientes, cuenta }: Props) {
   }
   if (datos.entregas?.length) {
     secciones.push({ id: 'entregas', etiqueta: 'Entregas', titulo: 'Entregas de la U · próximos 7 días', cuenta: datos.entregas.length, contenido: <Entregas lista={datos.entregas} /> })
+  }
+  if (billetera) {
+    secciones.push({
+      id: 'billetera', etiqueta: 'Billetera', titulo: 'Gastos del mes', cuenta: billetera.cuenta,
+      contenido: <><p className="quiet">{billetera.texto}</p><p className="ver-mas">{billetera.enlace}</p></>,
+    })
   }
   if (datos.resuelto?.length) {
     secciones.push({ id: 'resuelto', etiqueta: 'Resuelto', titulo: 'Resuelto', cuenta: datos.resuelto.length, contenido: <Items lista={datos.resuelto} extra={false} /> })

@@ -71,6 +71,7 @@ async function supabaseSimulado(route) {
 
   if (u.pathname === '/rest/v1/mi_dia') return json(route, 200, [{ datos: { ...EJEMPLO, fecha: HOY } }]);
   if (u.pathname === '/rest/v1/pendientes') return json(route, 200, []);
+  if (u.pathname === '/rest/v1/billetera') return json(route, 200, []);
   if (u.pathname === '/rest/v1/estudios') {
     let cuerpo = null;
     try { cuerpo = JSON.parse(req.postData() || 'null'); } catch { /* sin cuerpo */ }
@@ -208,7 +209,7 @@ const CREDITOS_POR_PERIODO = [15, 14, 14, 15, 14, 15, 14, 12, 16, 15, 15, 16, 15
   const lote = llamadas('PATCH').at(-1);
   revisar(lote?.ids.length === 4 && lote?.cuerpo.estado === 'aprobada', 'aprobar el período I: una sola llamada con sus 4 materias');
   revisar((await titulo(p)) === '15 de 230 créditos' && (await cabecera(p, 1)) === '15 créditos · aprobado', 'el título y el período se actualizan', await titulo(p));
-  revisar((await dato(p, 'Aprobado')) === '6 %', 'el avance en porcentaje, hacia abajo', await dato(p, 'Aprobado'));
+  revisar((await dato(p, 'Aprobado')) === '6\u00a0%', 'el avance en porcentaje, hacia abajo', await dato(p, 'Aprobado'));
   // textContent y no innerText: los avisos van en mayúsculas por CSS.
   revisar((await periodo(p, 1).locator('.aviso').textContent().catch(() => '') || '').includes('4 materias marcadas como aprobadas.'), 'avisa cuántas marcó');
   await tocar(p, periodo(p, 1).getByRole('button', { name: 'Deshacer' }));

@@ -60,7 +60,7 @@ function AvanceCarrera({ a }: { a: Avance }) {
         <rect className="barra-c" x={ancho(a.aprobados)} width={ancho(a.cursando)} height="4" />
       </svg>
       <dl className="cap">
-        <div><dt><span className="clave" aria-hidden="true" />Aprobado</dt><dd>{`${a.porcentaje} %`}</dd></div>
+        <div><dt><span className="clave" aria-hidden="true" />Aprobado</dt><dd>{`${a.porcentaje}\u00a0%`}</dd></div>
         <div><dt><span className="clave clave-c" aria-hidden="true" />Cursando</dt><dd>{materias(a.materiasCursando)}</dd></div>
         <div><dt>Faltan</dt><dd>{creditos(a.total - a.aprobados)}</dd></div>
         <div><dt>Promedio</dt><dd>{a.promedio ?? 'Sin notas'}</dd></div>

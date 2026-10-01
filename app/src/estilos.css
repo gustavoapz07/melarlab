@@ -191,6 +191,43 @@ section.periodo{margin-top:36px}
 .otro-plan{margin-top:32px}
 .otro-plan + .otra-materia{margin-top:12px}
 
+/* ---------- billetera ---------- */
+.anotar{display:grid;gap:16px;max-width:640px;margin-top:24px}
+.tipo{display:flex}
+.tipo .btn{min-width:104px;text-decoration:none}
+.tipo .btn + .btn{border-left:0}
+.tipo .btn[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.monto{display:flex}
+.monto-moneda{display:flex;align-items:center;padding:0 12px;border:1px solid var(--ink3);border-right:0;font:400 20px/1 var(--mono);color:var(--ink2)}
+.campo .monto input{flex:1;min-width:0;min-height:60px;font:600 32px/1.1 var(--sans);letter-spacing:-.01em}
+.chips{border:0;margin:0;padding:0;min-width:0}
+.chips legend{padding:0;margin-bottom:8px;font:400 11px/1.4 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--ink3)}
+.chips-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.chip{min-height:52px;padding:0 4px;border-color:var(--ink3);font:500 clamp(13px,3.9vw,15px)/1.15 var(--sans);text-transform:none;letter-spacing:0;hyphens:auto}
+.chip:active{background:var(--ink);color:var(--bg)}
+/* En el celular el :hover se queda pegado después de tocar: la última categoría parecería elegida. */
+@media (hover:none){.chip:hover:not(:active){background:none;color:var(--ink)}}
+.chips:disabled .chip{cursor:not-allowed;opacity:.55}
+.mas .marcas{color:var(--ink)}
+.meses{display:flex;flex-wrap:wrap;gap:0 16px;margin:0 -8px}
+.meses .siguiente{margin-left:auto}
+.bloque-moneda{margin-top:8px}
+.cats{width:100%;border-collapse:collapse;margin-top:20px}
+.cats thead th{padding:0 0 6px;border-bottom:1px solid var(--ink);font:400 11px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);text-align:left}
+.cats thead th + th,.cats td{text-align:right;padding-left:12px}
+.cats tbody th,.cats td{padding-top:10px;padding-bottom:10px;border-bottom:1px solid var(--rule);vertical-align:top}
+.cats tbody th{width:100%;font-weight:600;text-align:left}
+.cats td{white-space:nowrap}
+.barra-cat{height:6px;margin-top:8px}
+.mov{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:baseline;gap:0 12px;padding:12px 0;border-bottom:1px solid var(--rule)}
+.mov:last-child{border-bottom:0}
+.mov-t{font-weight:600;font-size:17px;line-height:1.35;overflow-wrap:anywhere}
+.mov .meta{margin-top:2px}
+.mov-m{font-weight:600;white-space:nowrap}
+.mov > .btn{margin-right:-8px}
+.mov.editando{display:block;padding:16px 0}
+.dia .sub{margin-top:18px}
+
 @media (max-width:640px){
  .wrap{padding:16px 16px 40px}
  h1{margin-top:28px}

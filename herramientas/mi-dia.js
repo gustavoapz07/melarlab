@@ -63,8 +63,10 @@ async function supabaseSimulado(route) {
     if (servidor.estado !== 200) return json(route, servidor.estado, { code: 'XX000', message: 'Falla simulada' });
     return json(route, 200, servidor.filas);
   }
-  // La pantalla Mi Día también trae los pendientes de hoy; esta prueba no tiene ninguno (ver pendientes.js).
+  // La pantalla Mi Día también trae los pendientes de hoy y la billetera; esta prueba no tiene nada de eso
+  // (ver pendientes.js y billetera.js).
   if (req.method() === 'GET' && u.pathname === '/rest/v1/pendientes') return json(route, 200, []);
+  if (req.method() === 'GET' && u.pathname === '/rest/v1/billetera') return json(route, 200, []);
   if (u.pathname === '/auth/v1/logout') return route.fulfill({ status: 204, headers: CORS });
   if (u.pathname === '/auth/v1/token') return json(route, 200, sesion());
   if (u.pathname === '/auth/v1/user') return json(route, 200, usuario);

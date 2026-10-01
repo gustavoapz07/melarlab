@@ -32,8 +32,8 @@ Meta: una app vacía pero real, instalada en los dos celulares, con cuentas y la
 - [ ] Calendario de la universidad (Canvas) suscrito en Google Calendar.
 
 ## Fase D · Billetera
-- [ ] Registrar un gasto en menos de 5 segundos: monto y categoría.
-- [ ] Resumen del mes por categoría y una línea en Mi Día.
+- [x] Registrar un gasto en menos de 5 segundos: monto y categoría.
+- [x] Resumen del mes por categoría y una línea en Mi Día.
 
 ## Fase E · Salud
 - [ ] Gym, Comidas y Descanso con el mismo registro rápido.
