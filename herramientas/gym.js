@@ -75,7 +75,7 @@ async function supabaseSimulado(route) {
   if (servidor.sinRed) return route.abort('internetdisconnected');
 
   if (u.pathname === '/rest/v1/mi_dia') return json(route, 200, [{ datos: { ...EJEMPLO, fecha: HOY } }]);
-  if (['/rest/v1/pendientes', '/rest/v1/billetera', '/rest/v1/descanso', '/rest/v1/comidas'].includes(u.pathname)) return json(route, 200, []);
+  if (['/rest/v1/pendientes', '/rest/v1/billetera', '/rest/v1/descanso', '/rest/v1/comidas', '/rest/v1/lista_deseos'].includes(u.pathname)) return json(route, 200, []);
   const tabla = u.pathname.replace('/rest/v1/', '');
   if (tabla === 'gym' || tabla === 'gym_plan') {
     let cuerpo = null;

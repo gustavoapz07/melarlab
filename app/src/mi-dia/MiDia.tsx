@@ -114,6 +114,17 @@ function IdeaDeContenido({ idea }: { idea: Idea }) {
   )
 }
 
+/** Una línea de un módulo (Salud, Dinero): el nombre del módulo, qué pasa y el enlace a su pantalla. */
+export interface Linea { modulo: string; texto: string; enlace: ReactNode }
+
+function Lineas({ lineas }: { lineas: Linea[] }) {
+  return (
+    <ul className="salud">
+      {lineas.map((l) => <li key={l.modulo}><span className="k">{l.modulo}</span>{l.texto} <span className="ver-mas">{l.enlace}</span></li>)}
+    </ul>
+  )
+}
+
 interface Seccion {
   id: string
   etiqueta: string
@@ -132,14 +143,14 @@ interface Props {
   /** Pendientes atrasados y de hoy (del módulo Pendientes, en vivo), con un enlace a la lista completa. */
   pendientes?: { lista: Elemento[]; enlace: ReactNode }
   /** Una línea por módulo de salud (Descanso, y después Gym y Comidas), en vivo, con su enlace. */
-  salud?: { modulo: string; texto: string; enlace: ReactNode }[]
-  /** Una línea con lo gastado en el mes (del módulo Billetera, en vivo): cuántos gastos y el enlace. */
-  billetera?: { texto: string; cuenta: number; enlace: ReactNode }
+  salud?: Linea[]
+  /** Una línea por módulo de dinero (Billetera y Lista de deseos), en vivo, con su enlace. */
+  dinero?: Linea[]
   /** Cuenta y botón de cerrar sesión, en el pie. */
   cuenta?: ReactNode
 }
 
-export function MiDia({ datos, avisos, nav, pendientes, salud, billetera, cuenta }: Props) {
+export function MiDia({ datos, avisos, nav, pendientes, salud, dinero, cuenta }: Props) {
   const fecha = leerFecha(datos.fecha)
   const ubicacion = datos.ubicacion ?? UBICACION_EJEMPLO
   const { salida, puesta } = horasDelSol(fecha, ubicacion.lat, ubicacion.lon, ubicacion.tz)
@@ -166,21 +177,14 @@ export function MiDia({ datos, avisos, nav, pendientes, salud, billetera, cuenta
   if (salud?.length) {
     secciones.push({
       id: 'salud', etiqueta: 'Salud', titulo: 'Salud', cuenta: salud.length,
-      contenido: (
-        <ul className="salud">
-          {salud.map((l) => <li key={l.modulo}><span className="k">{l.modulo}</span>{l.texto} <span className="ver-mas">{l.enlace}</span></li>)}
-        </ul>
-      ),
+      contenido: <Lineas lineas={salud} />,
     })
   }
   if (datos.entregas?.length) {
     secciones.push({ id: 'entregas', etiqueta: 'Entregas', titulo: 'Entregas de la U · próximos 7 días', cuenta: datos.entregas.length, contenido: <Entregas lista={datos.entregas} /> })
   }
-  if (billetera) {
-    secciones.push({
-      id: 'billetera', etiqueta: 'Billetera', titulo: 'Gastos del mes', cuenta: billetera.cuenta,
-      contenido: <><p className="quiet">{billetera.texto}</p><p className="ver-mas">{billetera.enlace}</p></>,
-    })
+  if (dinero?.length) {
+    secciones.push({ id: 'dinero', etiqueta: 'Dinero', titulo: 'Dinero', cuenta: dinero.length, contenido: <Lineas lineas={dinero} /> })
   }
   if (datos.resuelto?.length) {
     secciones.push({ id: 'resuelto', etiqueta: 'Resuelto', titulo: 'Resuelto', cuenta: datos.resuelto.length, contenido: <Items lista={datos.resuelto} extra={false} /> })

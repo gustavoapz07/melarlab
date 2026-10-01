@@ -79,7 +79,7 @@ async function supabaseSimulado(route) {
   if (u.pathname === '/rest/v1/pendientes') return json(route, 200, []);
   if (u.pathname === '/rest/v1/descanso') return json(route, 200, []);
   if (u.pathname === '/rest/v1/gym' || u.pathname === '/rest/v1/gym_plan') return json(route, 200, []);
-  if (u.pathname === '/rest/v1/comidas') return json(route, 200, []);
+  if (u.pathname === '/rest/v1/comidas' || u.pathname === '/rest/v1/lista_deseos') return json(route, 200, []);
   if (u.pathname === '/rest/v1/billetera') {
     let cuerpo = null;
     try { cuerpo = JSON.parse(req.postData() || 'null'); } catch { /* sin cuerpo */ }
@@ -360,7 +360,7 @@ const dato = (p, bloque, dt) => textoDe(bloque.locator('.cap div').filter({ has:
   // 13. La línea de Mi Día.
   await p.getByRole('navigation', { name: 'Módulos' }).getByRole('link', { name: 'Mi Día' }).click();
   await esperarTitulo(p, EJEMPLO.titular);
-  const linea = await textoDe(p.locator('section#billetera .quiet'));
+  const linea = (await textoDe(p.locator('section#dinero li').first())).replace(/^Billetera ?/, '').replace(/ Abrir la billetera$/, '');
   revisar(linea === `Llevas L ${corto(gastosFinal)} y US$ 20 en gastos este mes; hoy, L 1,250.75 y US$ 20.`, 'Mi Día dice lo gastado en el mes y hoy', linea);
   await auditar(p, 'Mi Día con la billetera');
   await p.getByRole('link', { name: 'Abrir la billetera' }).click();

@@ -6,6 +6,8 @@ import { PantallaComidas, type AccionesComidas } from './comidas/Comidas.tsx'
 import { caseras, delDia, enPalabras, useComidas } from './comidas/useComidas.ts'
 import { configurada } from './cuenta/supabase.ts'
 import { useSesion } from './cuenta/useSesion.ts'
+import { PantallaDeseos, type AccionesDeseos } from './deseos/Deseos.tsx'
+import { lineaDeDeseos, useDeseos } from './deseos/useDeseos.ts'
 import { PantallaDescanso, type AccionesDescanso } from './descanso/Descanso.tsx'
 import { META_HORAS, NOCHES_PARA_AVISAR, duracion, resumirSueno, useDescanso } from './descanso/useDescanso.ts'
 import { PantallaEstudios } from './estudios/Estudios.tsx'
@@ -14,7 +16,7 @@ import { PantallaGym, type AccionesGym } from './gym/Gym.tsx'
 import { cuentaDeLaSemana, resumirGym, useGym } from './gym/useGym.ts'
 import { Marco } from './Marco.tsx'
 import { fechaEnPalabras, hoyEnElCelular } from './mi-dia/formato.ts'
-import { Marca, MiDia } from './mi-dia/MiDia.tsx'
+import { Marca, MiDia, type Linea } from './mi-dia/MiDia.tsx'
 import { useMiDia } from './mi-dia/useMiDia.ts'
 import { Enlace, NavModulos } from './navegacion.tsx'
 import { PantallaPendientes, type AccionesPendientes } from './pendientes/Pendientes.tsx'
@@ -52,23 +54,39 @@ function Avisos({ enLinea, aviso, sinConexion, children }: { enLinea: boolean; a
   )
 }
 
-/** La línea de la billetera en Mi Día: lo gastado en el mes y hoy. Nada si todavía no se anotó ningún movimiento. */
-function lineaDeBilletera(billetera: AccionesBilletera, hoy: string, navegar: Navegar) {
-  if (billetera.estado.tipo !== 'listo' || !billetera.estado.lista.length) return undefined
-  const { lista } = billetera.estado
-  const mes = hoy.slice(0, 7)
-  const delMes = totalEnPalabras(resumirMes(lista, mes), 'gastos')
-  const deHoy = totalEnPalabras(resumirMes(lista.filter((m) => m.fecha === hoy), mes), 'gastos')
-  return {
-    texto: `${delMes ? `Llevas ${delMes} en gastos este mes` : 'Nada gastado este mes'}; hoy, ${deHoy ?? 'nada'}.`,
-    cuenta: lista.filter((m) => m.tipo === 'gasto' && m.fecha.startsWith(mes)).length,
-    enlace: <Enlace a="/billetera" navegar={navegar}>Abrir la billetera</Enlace>,
+/**
+ * Las líneas de dinero de Mi Día: lo gastado en el mes y hoy (si ya se anotó algún movimiento) y lo que
+ * llegó al precio que quiero en la lista de deseos (solo si hay algo).
+ */
+function lineasDeDinero(billetera: AccionesBilletera, deseos: AccionesDeseos, hoy: string, navegar: Navegar) {
+  const lineas: Linea[] = []
+  if (billetera.estado.tipo === 'listo' && billetera.estado.lista.length) {
+    const { lista } = billetera.estado
+    const mes = hoy.slice(0, 7)
+    const delMes = totalEnPalabras(resumirMes(lista, mes), 'gastos')
+    const deHoy = totalEnPalabras(resumirMes(lista.filter((m) => m.fecha === hoy), mes), 'gastos')
+    lineas.push({
+      modulo: 'Billetera',
+      texto: `${delMes ? `Llevas ${delMes} en gastos este mes` : 'Nada gastado este mes'}; hoy, ${deHoy ?? 'nada'}.`,
+      enlace: <Enlace a="/billetera" navegar={navegar}>Abrir la billetera</Enlace>,
+    })
   }
+  const llegaron = deseos.estado.tipo === 'listo' ? lineaDeDeseos(deseos.estado.lista) : null
+  if (llegaron) lineas.push({ modulo: 'Lista de deseos', texto: llegaron, enlace: <Enlace a="/deseos" navegar={navegar}>Ver la lista</Enlace> })
+  return lineas
+}
+
+/** Lo que sobra este mes en la Billetera (ingresos menos gastos), por moneda. Solo las monedas donde sobra algo. */
+function sobraDelMes(billetera: AccionesBilletera, hoy: string): Record<string, number> {
+  if (billetera.estado.tipo !== 'listo') return {}
+  return Object.fromEntries(resumirMes(billetera.estado.lista, hoy.slice(0, 7))
+    .filter((r) => r.ingresos > r.gastos)
+    .map((r) => [r.moneda, (Math.round(r.ingresos * 100) - Math.round(r.gastos * 100)) / 100]))
 }
 
 /** Las líneas de salud de Mi Día: cómo vengo durmiendo, qué hay de comer y si hoy toca gym. Un módulo que nunca se usó no sale. */
 function lineasDeSalud(descanso: AccionesDescanso, comidas: AccionesComidas, gym: AccionesGym, hoy: string, navegar: Navegar) {
-  const lineas: { modulo: string; texto: string; enlace: ReactNode }[] = []
+  const lineas: Linea[] = []
   if (descanso.estado.tipo === 'listo' && descanso.estado.lista.length) {
     const r = resumirSueno(descanso.estado.lista, hoy)
     const semana = r.promedio !== null && r.noches > 1 ? `; promedio de la semana, ${duracion(r.promedio)}` : ''
@@ -102,10 +120,11 @@ function lineasDeSalud(descanso: AccionesDescanso, comidas: AccionesComidas, gym
 }
 
 /** Mi Día real, de la tabla mi_dia, con los pendientes de hoy. Mientras no hay uno, una pantalla corta que explica por qué. */
-function PantallaMiDia({ usuario, pendientes, billetera, descanso, comidas, gym, navegar, enLinea, nav, cuenta, aviso }: Comun & {
+function PantallaMiDia({ usuario, pendientes, billetera, deseos, descanso, comidas, gym, navegar, enLinea, nav, cuenta, aviso }: Comun & {
   usuario: string
   pendientes: AccionesPendientes
   billetera: AccionesBilletera
+  deseos: AccionesDeseos
   descanso: AccionesDescanso
   comidas: AccionesComidas
   gym: AccionesGym
@@ -128,7 +147,7 @@ function PantallaMiDia({ usuario, pendientes, billetera, descanso, comidas, gym,
           enlace: <Enlace a="/pendientes" navegar={navegar}>Ver todos los pendientes</Enlace>,
         }}
         salud={lineasDeSalud(descanso, comidas, gym, hoy, navegar)}
-        billetera={lineaDeBilletera(billetera, hoy, navegar)}
+        dinero={lineasDeDinero(billetera, deseos, hoy, navegar)}
         avisos={(
           <Avisos enLinea={enLinea} aviso={aviso} sinConexion="Sin conexión. Lo que ves quedó guardado en el celular.">
             {estado.fallo && enLinea && (
@@ -199,6 +218,7 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
   // Una sola copia de cada módulo que sale en Mi Día, para Mi Día y su pantalla: lo que cambia en una se ve en la otra.
   const pendientes = usePendientes(usuario)
   const billetera = useBilletera(usuario)
+  const deseos = useDeseos(usuario)
   const descanso = useDescanso(usuario)
   const comidas = useComidas(usuario)
   const gym = useGym(usuario)
@@ -221,6 +241,23 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
           <Avisos enLinea={enLinea} aviso={aviso}
             sinConexion={billetera.estado.tipo === 'listo'
               ? 'Sin conexión. Ves lo último guardado; para anotar hace falta internet.'
+              : 'Sin conexión.'} />
+        )}
+      />
+    )
+  }
+  if (ruta === '/deseos') {
+    return (
+      <PantallaDeseos
+        acciones={deseos}
+        billetera={{ sobra: sobraDelMes(billetera, hoyEnElCelular()), anotarGasto: billetera.agregar }}
+        enLinea={enLinea}
+        nav={nav}
+        cuenta={cuenta}
+        avisos={(
+          <Avisos enLinea={enLinea} aviso={aviso}
+            sinConexion={deseos.estado.tipo === 'listo'
+              ? 'Sin conexión. Ves lo último guardado; para cambiar algo hace falta internet.'
               : 'Sin conexión.'} />
         )}
       />
@@ -293,7 +330,7 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
     )
   }
   return (
-    <PantallaMiDia usuario={usuario} pendientes={pendientes} billetera={billetera} descanso={descanso} comidas={comidas} gym={gym} navegar={navegar} enLinea={enLinea} nav={nav} cuenta={cuenta} aviso={aviso} />
+    <PantallaMiDia usuario={usuario} pendientes={pendientes} billetera={billetera} deseos={deseos} descanso={descanso} comidas={comidas} gym={gym} navegar={navegar} enLinea={enLinea} nav={nav} cuenta={cuenta} aviso={aviso} />
   )
 }
 
