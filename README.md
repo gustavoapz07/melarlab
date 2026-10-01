@@ -8,7 +8,7 @@ Mi sistema de automatizaciones para tener más orden en la vida. Lema: *vida con
 
 - **Mi Día:** cada mañana, de lunes a viernes, una página con la agenda de hoy, lo que necesita mi atención, las entregas de la U y un par de novedades de IA. Se genera sola en la nube y me llega un aviso al celular.
 - **Radar:** cada domingo, un resumen de lo más útil que pasó en IA esa semana, verificado en su fuente.
-- **La app para celular** (en construcción): se instala desde el navegador en Android y en iPhone, pide cuenta y funciona sin internet. Ya muestra el Mi Día real de cada mañana, la lista de Pendientes, la Billetera (un gasto se anota con el monto y un toque) y el plan de Estudios con el avance de la carrera; los demás módulos llegan como pantallas de la app. Detalle en [app/README.md](app/README.md).
+- **La app para celular** (en construcción): se instala desde el navegador en Android y en iPhone, pide cuenta y funciona sin internet. Ya muestra el Mi Día real de cada mañana, la lista de Pendientes, la Billetera (un gasto se anota con el monto y un toque), el Descanso (cómo vengo durmiendo) y el plan de Estudios con el avance de la carrera; los demás módulos llegan como pantallas de la app. Detalle en [app/README.md](app/README.md).
 
 ## Módulos
 
@@ -21,7 +21,7 @@ Mi sistema de automatizaciones para tener más orden en la vida. Lema: *vida con
 | | Estudios | Plan de estudios, clases, exámenes y avance de la carrera | Activo: plan y avance. Falta el calendario de la U |
 | Salud | Gym | Rutina y registro de entrenos | Planeado |
 | | Comidas | Plan de comidas y lista del súper | Planeado |
-| | Descanso | Horario de sueño y horas dormidas | Planeado |
+| | Descanso | Horario de sueño y horas dormidas | Activo |
 | Dinero | Billetera | Ingresos, gastos y resumen del mes | Activo |
 | | Lista de deseos | Productos que quiero comprar y su precio | Planeado |
 | Negocio | Clientes | Prospección y seguimiento de clientes | Planeado |

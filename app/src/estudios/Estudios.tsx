@@ -2,6 +2,7 @@
 // La primera vez carga el plan de UNITEC con un botón; después se marca lo aprobado, materia por materia
 // o todo un período de una vez (con Deshacer). Las electivas se editan al elegirlas.
 import { useId, useRef, useState, type FormEvent, type ReactNode } from 'react'
+import { Opciones } from '../formularios.tsx'
 import { Marco } from '../Marco.tsx'
 import { fechaCorta, hoyEnElCelular } from '../mi-dia/formato.ts'
 import { MATERIAS_DEL_PLAN, PLAN } from './plan-unitec.ts'
@@ -22,10 +23,6 @@ export interface AccionesEstudios {
 const creditos = (n: number) => `${n} ${n === 1 ? 'crédito' : 'créditos'}`
 const materias = (n: number) => `${n} ${n === 1 ? 'materia' : 'materias'}`
 const PERIODOS = Array.from({ length: RANGO.periodo[1] }, (_, i) => i + 1)
-
-function Opciones<T extends string>({ opciones }: { opciones: Record<T, string> }) {
-  return <>{(Object.entries(opciones) as [T, string][]).map(([valor, nombre]) => <option key={valor} value={valor}>{nombre}</option>)}</>
-}
 
 function CampoPeriodo({ id, valor, cambiar }: { id: string; valor: number; cambiar: (n: number) => void }) {
   return (

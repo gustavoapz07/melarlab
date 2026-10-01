@@ -122,16 +122,27 @@ a.t:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-th
 .foot > .foot-cuenta:only-child{border-top:0;margin-top:0;padding-top:0}
 
 /* ---------- navegación entre módulos ---------- */
-.modulos{display:flex;flex-wrap:wrap;gap:0 24px;border-bottom:1px solid var(--rule)}
-.modulos a{display:inline-flex;align-items:center;min-height:44px;font:400 12px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;
- color:var(--ink3);text-decoration:none;border-bottom:2px solid transparent;margin-bottom:-1px}
+/* Una línea siempre; si no caben, se desplaza de lado (navegacion.tsx). La raya de abajo es una sombra
+   interior y no un borde, para que la raya de la pantalla actual no quede recortada al desplazar. */
+.modulos{position:relative;display:flex;gap:0 24px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;box-shadow:inset 0 -1px 0 var(--rule)}
+.modulos::-webkit-scrollbar{display:none}
+.modulos a{flex:none;display:inline-flex;align-items:center;min-height:44px;font:400 12px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;
+ color:var(--ink3);text-decoration:none;border-bottom:2px solid transparent}
 .modulos a:hover{color:var(--ink)}
-/* Con cuatro módulos, en celulares de 360 px la barra no cabía en una línea. */
-@media (max-width:380px){.modulos{gap:0 14px}}
 .modulos a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--ink)}
+.modulos[data-despues="true"]{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 40px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 40px),transparent)}
+.modulos[data-antes="true"]{-webkit-mask-image:linear-gradient(to right,transparent,#000 40px);mask-image:linear-gradient(to right,transparent,#000 40px)}
+.modulos[data-antes="true"][data-despues="true"]{-webkit-mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 40px),transparent);
+ mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 40px),transparent)}
+@media (max-width:640px){.modulos{gap:0 20px}}
 main h1:focus{outline:none}
 .ver-mas{padding-top:4px;font:400 12px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em}
 .ver-mas a{display:inline-flex;align-items:center;min-height:44px;text-underline-offset:3px}
+.salud{list-style:none}
+.salud li{padding:12px 0 0;border-bottom:1px solid var(--rule);color:var(--ink2);font-size:17px}
+.salud li:last-child{border-bottom:0}
+.salud .k{display:block;margin-bottom:2px}
+.salud .ver-mas{display:block}
 
 /* ---------- pendientes (las filas con casilla, .pend, también las usa Estudios) ---------- */
 .agregar{display:grid;gap:8px;max-width:640px;margin-top:24px}
@@ -208,9 +219,11 @@ section.periodo{margin-top:36px}
 .chip{min-height:52px;padding:0 4px;border-color:var(--ink3);font:500 clamp(13px,3.9vw,15px)/1.15 var(--sans);text-transform:none;letter-spacing:0;hyphens:auto}
 .chip:active{background:var(--ink);color:var(--bg)}
 /* En el celular el :hover se queda pegado después de tocar: la última categoría parecería elegida. */
-@media (hover:none){.chip:hover:not(:active){background:none;color:var(--ink)}}
+@media (hover:none){.chip:hover:not(:active):not([aria-pressed="true"]){background:none;color:var(--ink)}}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .chips:disabled .chip{cursor:not-allowed;opacity:.55}
 .mas .marcas{color:var(--ink)}
+.mas > * + .campo{margin-top:16px}
 .meses{display:flex;flex-wrap:wrap;gap:0 16px;margin:0 -8px}
 .meses .siguiente{margin-left:auto}
 .bloque-moneda{margin-top:8px}
@@ -229,6 +242,16 @@ section.periodo{margin-top:36px}
 .mov > .btn{margin-right:-8px}
 .mov.editando{display:block;padding:16px 0}
 .dia .sub{margin-top:18px}
+
+/* ---------- descanso ---------- */
+.horas{margin:0}
+.calculo{font-size:17px;color:var(--ink2)}
+.calculo b{color:var(--ink);font-weight:600}
+.calidad .chips-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+.barras{display:block;width:100%;max-width:480px;height:auto;margin-top:20px}
+.barras .lbl{font-size:8px}
+.barras .lbl-hoy{fill:var(--ink)}
+.meta-linea{stroke:var(--ink3);stroke-dasharray:3 3}
 
 @media (max-width:640px){
  .wrap{padding:16px 16px 40px}

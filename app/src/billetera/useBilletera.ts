@@ -5,7 +5,7 @@
 // para anotar hace falta red.
 import { supabase } from '../cuenta/supabase.ts'
 import { PREFIJOS } from '../guardado.ts'
-import { MESES, fechaEnPalabras, hoyEnElCelular, mayuscula, sumarDiasISO } from '../mi-dia/formato.ts'
+import { MESES, hoyEnElCelular } from '../mi-dia/formato.ts'
 import { esDe, mensajeDeFalla, useTabla, type EstadoTabla } from '../useTabla.ts'
 
 export const CATEGORIAS = {
@@ -199,13 +199,6 @@ export function totalEnPalabras(resumen: ResumenMoneda[], cual: 'gastos' | 'ingr
 export function nombreDelMes(mes: string, hoy = hoyEnElCelular()): string {
   const nombre = MESES[Number(mes.slice(5, 7)) - 1]
   return mes.slice(0, 4) === hoy.slice(0, 4) ? nombre : `${nombre} de ${mes.slice(0, 4)}`
-}
-
-/** "Hoy", "Ayer" o "Lunes 28 de septiembre". */
-export function cuandoFue(fecha: string, hoy = hoyEnElCelular()): string {
-  if (fecha === hoy) return 'Hoy'
-  if (fecha === sumarDiasISO(hoy, -1)) return 'Ayer'
-  return mayuscula(fechaEnPalabras(fecha))
 }
 
 /** Los movimientos de un mes agrupados por día, del más reciente al más viejo. */

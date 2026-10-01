@@ -77,6 +77,7 @@ async function supabaseSimulado(route) {
 
   if (u.pathname === '/rest/v1/mi_dia') return json(route, 200, [{ datos: { ...EJEMPLO, fecha: HOY } }]);
   if (u.pathname === '/rest/v1/pendientes') return json(route, 200, []);
+  if (u.pathname === '/rest/v1/descanso') return json(route, 200, []);
   if (u.pathname === '/rest/v1/billetera') {
     let cuerpo = null;
     try { cuerpo = JSON.parse(req.postData() || 'null'); } catch { /* sin cuerpo */ }

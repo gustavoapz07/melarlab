@@ -4,6 +4,8 @@ import { resumirMes, totalEnPalabras, useBilletera } from './billetera/useBillet
 import { Entrada, NuevaContrasena } from './cuenta/Entrada.tsx'
 import { configurada } from './cuenta/supabase.ts'
 import { useSesion } from './cuenta/useSesion.ts'
+import { PantallaDescanso, type AccionesDescanso } from './descanso/Descanso.tsx'
+import { META_HORAS, NOCHES_PARA_AVISAR, duracion, resumirSueno, useDescanso } from './descanso/useDescanso.ts'
 import { PantallaEstudios } from './estudios/Estudios.tsx'
 import { useEstudios } from './estudios/useEstudios.ts'
 import { Marco } from './Marco.tsx'
@@ -60,11 +62,28 @@ function lineaDeBilletera(billetera: AccionesBilletera, hoy: string, navegar: Na
   }
 }
 
+/** Las líneas de salud de Mi Día: cómo vengo durmiendo. Un módulo que nunca se usó no sale. */
+function lineasDeSalud(descanso: AccionesDescanso, hoy: string, navegar: Navegar) {
+  const lineas: { modulo: string; texto: string; enlace: ReactNode }[] = []
+  if (descanso.estado.tipo === 'listo' && descanso.estado.lista.length) {
+    const r = resumirSueno(descanso.estado.lista, hoy)
+    const semana = r.promedio !== null && r.noches > 1 ? `; promedio de la semana, ${duracion(r.promedio)}` : ''
+    const aviso = r.seguidasCortas >= NOCHES_PARA_AVISAR ? ` Llevas ${r.seguidasCortas} noches seguidas durmiendo menos de ${META_HORAS} h.` : ''
+    lineas.push({
+      modulo: 'Descanso',
+      texto: (r.anoche ? `Anoche dormiste ${duracion(r.anoche.horas)}${semana}.` : 'Todavía no anotas cómo dormiste.') + aviso,
+      enlace: <Enlace a="/descanso" navegar={navegar}>{r.anoche ? 'Ver el descanso' : 'Anotar la noche'}</Enlace>,
+    })
+  }
+  return lineas
+}
+
 /** Mi Día real, de la tabla mi_dia, con los pendientes de hoy. Mientras no hay uno, una pantalla corta que explica por qué. */
-function PantallaMiDia({ usuario, pendientes, billetera, navegar, enLinea, nav, cuenta, aviso }: Comun & {
+function PantallaMiDia({ usuario, pendientes, billetera, descanso, navegar, enLinea, nav, cuenta, aviso }: Comun & {
   usuario: string
   pendientes: AccionesPendientes
   billetera: AccionesBilletera
+  descanso: AccionesDescanso
   navegar: Navegar
 }) {
   const { estado, recargar } = useMiDia(usuario)
@@ -83,6 +102,7 @@ function PantallaMiDia({ usuario, pendientes, billetera, navegar, enLinea, nav, 
           lista: deHoy.map((p) => ({ titulo: p.tarea, texto: p.notas ?? undefined, fuente: AREAS[p.area], cuando: cuandoVence(p, hoy) })),
           enlace: <Enlace a="/pendientes" navegar={navegar}>Ver todos los pendientes</Enlace>,
         }}
+        salud={lineasDeSalud(descanso, hoy, navegar)}
         billetera={lineaDeBilletera(billetera, hoy, navegar)}
         avisos={(
           <Avisos enLinea={enLinea} aviso={aviso} sinConexion="Sin conexión. Lo que ves quedó guardado en el celular.">
@@ -151,9 +171,10 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
   salir: () => void
 }) {
   const [ruta, navegar] = useRuta()
-  // Una sola lista de pendientes y una sola billetera para Mi Día y su pantalla: lo que cambia en una se ve en la otra.
+  // Una sola copia de cada módulo que sale en Mi Día, para Mi Día y su pantalla: lo que cambia en una se ve en la otra.
   const pendientes = usePendientes(usuario)
   const billetera = useBilletera(usuario)
+  const descanso = useDescanso(usuario)
   const nav = <NavModulos ruta={ruta} navegar={navegar} />
   const cuenta = (
     <>
@@ -172,6 +193,22 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
         avisos={(
           <Avisos enLinea={enLinea} aviso={aviso}
             sinConexion={billetera.estado.tipo === 'listo'
+              ? 'Sin conexión. Ves lo último guardado; para anotar hace falta internet.'
+              : 'Sin conexión.'} />
+        )}
+      />
+    )
+  }
+  if (ruta === '/descanso') {
+    return (
+      <PantallaDescanso
+        acciones={descanso}
+        enLinea={enLinea}
+        nav={nav}
+        cuenta={cuenta}
+        avisos={(
+          <Avisos enLinea={enLinea} aviso={aviso}
+            sinConexion={descanso.estado.tipo === 'listo'
               ? 'Sin conexión. Ves lo último guardado; para anotar hace falta internet.'
               : 'Sin conexión.'} />
         )}
@@ -198,7 +235,7 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
     )
   }
   return (
-    <PantallaMiDia usuario={usuario} pendientes={pendientes} billetera={billetera} navegar={navegar} enLinea={enLinea} nav={nav} cuenta={cuenta} aviso={aviso} />
+    <PantallaMiDia usuario={usuario} pendientes={pendientes} billetera={billetera} descanso={descanso} navegar={navegar} enLinea={enLinea} nav={nav} cuenta={cuenta} aviso={aviso} />
   )
 }
 

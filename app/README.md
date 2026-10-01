@@ -2,11 +2,12 @@
 
 La app para celular de MelarLab. Es una app web instalable (PWA): se instala desde el navegador en Android y en iPhone, queda en la pantalla de inicio y funciona sin internet.
 
-Por ahora tiene cuentas (entrar, crear cuenta, recuperar la contraseña y cerrar sesión, con Supabase Auth) y cuatro pantallas:
+Por ahora tiene cuentas (entrar, crear cuenta, recuperar la contraseña y cerrar sesión, con Supabase Auth) y cinco pantallas:
 
 - **Mi Día**, con los datos reales de cada mañana: una rutina de Claude Code lo publica en la tabla `mi_dia` de Supabase de lunes a viernes a las 5:50 AM ([docs/base-de-datos.md](../docs/base-de-datos.md#mi-día)). También muestra los pendientes atrasados y de hoy.
 - **Pendientes** (`/pendientes`): agregar en segundos, marcar como hecho, editar y borrar, agrupados en atrasados, hoy, próximos y sin fecha.
 - **Billetera** (`/billetera`): anotar un gasto o un ingreso con el monto y un toque en la categoría (fecha, moneda y detalle son opcionales), con Deshacer. Debajo, el resumen del mes por categoría, los meses anteriores (hasta 12) y los movimientos por día, con editar y borrar. Mi Día dice lo gastado en el mes y hoy. En Android, al mantener presionado el ícono aparece "Anotar un gasto".
+- **Descanso** (`/descanso`): anotar la noche con la hora de dormir y la de despertar (y, si quiero, cómo dormí); las horas se calculan solas y cruzan la medianoche. El resumen de los últimos 7 días contra la meta de 7 horas, las barras de las últimas dos semanas y un aviso si llevo 3 noches cortas seguidas. Mi Día lo dice en su sección de Salud.
 - **Estudios** (`/estudios`): el plan de estudios por período, con el estado de cada materia (pendiente, cursando o aprobada), la nota y el avance de la carrera. La primera vez carga con un botón el plan de Ingeniería en Sistemas Computacionales de UNITEC (2025: 17 períodos y 230 créditos); también se pueden agregar materias una por una.
 
 Las pantallas de los demás módulos llegan en los siguientes pasos de la [hoja de ruta](../docs/hoja-de-ruta.md).
@@ -40,6 +41,7 @@ app/
     ├── navegacion.tsx      barra de módulos y enlaces entre pantallas
     ├── Marco.tsx           encabezado, barra y pie de las pantallas que no son Mi Día
     ├── guardado.ts         copias en el celular para ver sin internet; cerrar sesión las borra
+    ├── formularios.tsx     piezas de formulario compartidas: opciones de un select y la fecha con Hoy y Ayer
     ├── useTabla.ts         una tabla de Supabase con su copia en el celular: cuándo consulta y cómo se actualiza (lo usan los módulos)
     ├── cuenta/
     │   ├── supabase.ts     cliente de Supabase (solo la clave publicable)
@@ -62,6 +64,9 @@ app/
     ├── billetera/
     │   ├── useBilletera.ts    leer, anotar, cambiar y borrar en la tabla billetera; montos, resumen del mes y días
     │   └── Billetera.tsx      la pantalla: anotar con un toque, resumen por categoría, meses y movimientos
+    ├── descanso/
+    │   ├── useDescanso.ts     leer, anotar, cambiar y borrar en la tabla descanso; horas, meta y resumen de la semana
+    │   └── Descanso.tsx       la pantalla: anotar la noche, la semana con barras y las noches anotadas
     ├── estudios/
     │   ├── plan-unitec.ts     el plan oficial de UNITEC (información pública), listo para cargarlo de una vez
     │   ├── useEstudios.ts     leer, agregar, cambiar (una o un período entero) y borrar en la tabla estudios; avance y períodos
@@ -121,6 +126,7 @@ npm run cuentas -- http://localhost:4173    # entrar, crear cuenta, recuperar, c
 npm run mi-dia -- http://localhost:4173     # Mi Día de hoy, de otro día, todavía ninguno, errores, sin internet y datos raros
 npm run pendientes -- http://localhost:4173 # agregar, grupos, hecho, editar, borrar, errores, sin internet, Mi Día y navegación
 npm run billetera -- http://localhost:4173  # anotar con un toque, deshacer, montos, dólares, resumen, meses, editar, Mi Día y sin internet
+npm run descanso -- http://localhost:4173   # anotar la noche, cambiarla, horas que no sirven, noches cortas, semana, Mi Día y sin internet
 npm run estudios -- http://localhost:4173   # cargar el plan, aprobar y deshacer, cursando, notas, código repetido, errores y sin internet
 npm run auditar -- http://localhost:4173    # accesibilidad WCAG 2.1 AA en claro y oscuro, a 390 y 1280 px
 npm run capturas -- http://localhost:4173 docs/capturas/app
@@ -141,9 +147,11 @@ Si Playwright no encuentra Chromium, se le indica el navegador instalado con `CH
 - **Marcar como hecho se ve al instante.** Si la base no lo acepta, el pendiente vuelve a como estaba y un aviso lo dice arriba de la lista.
 - **Billetera: anotar es escribir el monto y tocar la categoría.** La categoría es el botón de guardar; sin monto válido no se envía nada, y el aviso trae Deshacer. Lo opcional (fecha, moneda y detalle) va plegado, pero si la fecha no es hoy o la moneda no es lempiras, se ve en el resumen plegado.
 - **Cada moneda se suma aparte.** Los montos en dólares no se convierten a lempiras: el resumen muestra un bloque por moneda. Las sumas van en centavos enteros para no arrastrar errores de redondeo.
+- **Descanso: una noche por día.** La noche lleva la fecha del día en que me desperté. Si ese día ya tiene una, el formulario la muestra y guardar la cambia, en vez de crear otra.
+- **La barra de módulos se desplaza de lado** cuando no caben todos: la pantalla actual queda a la vista y un desvanecido en el borde avisa que hay más.
 - **Estudios: el avance sale de las materias.** El total es la suma de los créditos del plan y el porcentaje se redondea hacia abajo, para que no diga 100 % antes de tiempo. El promedio pondera por créditos las notas registradas; no es el índice oficial de la universidad.
 - **Todo un período de una vez, con Deshacer.** "Aprobar el período" y "Cursar el período" cambian sus materias en una sola llamada; el aviso trae Deshacer. Los períodos ya aprobados salen plegados.
-- **Direcciones reales.** Mi Día es `/`, Pendientes `/pendientes`, Billetera `/billetera` y Estudios `/estudios`: el botón de atrás funciona y, al cambiar de pantalla, el foco va al título para que un lector de pantalla lo anuncie.
+- **Direcciones reales.** Mi Día es `/`, Pendientes `/pendientes`, Billetera `/billetera`, Descanso `/descanso` y Estudios `/estudios`: el botón de atrás funciona y, al cambiar de pantalla, el foco va al título para que un lector de pantalla lo anuncie.
 - **Los datos de Mi Día se revisan antes de dibujarlos.** Lo que no tiene lo mínimo (un título, una hora que existe) se descarta, y el texto nunca se interpreta como HTML.
 - **Mensajes sin detalles internos.** Los errores de Supabase se muestran en español y cortos; crear cuenta y recuperar la contraseña no revelan si un correo ya está registrado.
 - **Política de contenido estricta.** Sin scripts ni estilos en línea y sin conexiones a otros dominios. Si algún día se cuela contenido ajeno (un correo, un evento), el navegador no lo ejecuta ni manda datos afuera.

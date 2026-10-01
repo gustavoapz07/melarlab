@@ -52,6 +52,13 @@ export function fechaCorta(iso: string): string {
   return `${mayuscula(DIAS[diaSemana(f)].slice(0, 3))} ${f.d} ${MESES[f.m - 1].slice(0, 3)}`
 }
 
+/** "Hoy", "Ayer" o "Lunes 28 de septiembre". */
+export function cuandoFue(fecha: string, hoy = hoyEnElCelular()): string {
+  if (fecha === hoy) return 'Hoy'
+  if (fecha === sumarDiasISO(hoy, -1)) return 'Ayer'
+  return mayuscula(fechaEnPalabras(fecha))
+}
+
 /** "2026-09-30" más n días, como "AAAA-MM-DD". */
 export function sumarDiasISO(iso: string, n: number): string {
   const f = sumarDias(leerFecha(iso), n)

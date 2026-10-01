@@ -67,6 +67,7 @@ async function supabaseSimulado(route) {
   // (ver pendientes.js y billetera.js).
   if (req.method() === 'GET' && u.pathname === '/rest/v1/pendientes') return json(route, 200, []);
   if (req.method() === 'GET' && u.pathname === '/rest/v1/billetera') return json(route, 200, []);
+  if (req.method() === 'GET' && u.pathname === '/rest/v1/descanso') return json(route, 200, []);
   if (u.pathname === '/auth/v1/logout') return route.fulfill({ status: 204, headers: CORS });
   if (u.pathname === '/auth/v1/token') return json(route, 200, sesion());
   if (u.pathname === '/auth/v1/user') return json(route, 200, usuario);

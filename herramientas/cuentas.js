@@ -85,6 +85,7 @@ async function supabaseSimulado(route) {
   if (llamada === 'POST /auth/v1/logout') return route.fulfill({ status: 204, headers: CORS });
   if (llamada === 'GET /rest/v1/pendientes') return json(route, 200, []);
   if (llamada === 'GET /rest/v1/billetera') return json(route, 200, []);
+  if (llamada === 'GET /rest/v1/descanso') return json(route, 200, []);
   if (llamada === 'GET /rest/v1/mi_dia') {
     servidor.consultasMiDia.push(req.headers()['authorization'] || '');
     return json(route, 200, [{ datos: MI_DIA }]);

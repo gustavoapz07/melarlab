@@ -131,13 +131,15 @@ interface Props {
   nav?: ReactNode
   /** Pendientes atrasados y de hoy (del módulo Pendientes, en vivo), con un enlace a la lista completa. */
   pendientes?: { lista: Elemento[]; enlace: ReactNode }
+  /** Una línea por módulo de salud (Descanso, y después Gym y Comidas), en vivo, con su enlace. */
+  salud?: { modulo: string; texto: string; enlace: ReactNode }[]
   /** Una línea con lo gastado en el mes (del módulo Billetera, en vivo): cuántos gastos y el enlace. */
   billetera?: { texto: string; cuenta: number; enlace: ReactNode }
   /** Cuenta y botón de cerrar sesión, en el pie. */
   cuenta?: ReactNode
 }
 
-export function MiDia({ datos, avisos, nav, pendientes, billetera, cuenta }: Props) {
+export function MiDia({ datos, avisos, nav, pendientes, salud, billetera, cuenta }: Props) {
   const fecha = leerFecha(datos.fecha)
   const ubicacion = datos.ubicacion ?? UBICACION_EJEMPLO
   const { salida, puesta } = horasDelSol(fecha, ubicacion.lat, ubicacion.lon, ubicacion.tz)
@@ -159,6 +161,16 @@ export function MiDia({ datos, avisos, nav, pendientes, billetera, cuenta }: Pro
     secciones.splice(1, 0, {
       id: 'pendientes', etiqueta: 'Pendientes', titulo: 'Pendientes de hoy', cuenta: pendientes.lista.length,
       contenido: <><Items lista={pendientes.lista} extra={false} /><p className="ver-mas">{pendientes.enlace}</p></>,
+    })
+  }
+  if (salud?.length) {
+    secciones.push({
+      id: 'salud', etiqueta: 'Salud', titulo: 'Salud', cuenta: salud.length,
+      contenido: (
+        <ul className="salud">
+          {salud.map((l) => <li key={l.modulo}><span className="k">{l.modulo}</span>{l.texto} <span className="ver-mas">{l.enlace}</span></li>)}
+        </ul>
+      ),
     })
   }
   if (datos.entregas?.length) {

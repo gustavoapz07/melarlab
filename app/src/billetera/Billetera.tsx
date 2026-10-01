@@ -1,10 +1,11 @@
 // Pantalla Billetera: anotar un gasto en segundos (monto y tocar la categoría), el resumen del mes por
 // categoría y los movimientos por día, con editar y borrar. Cada moneda se suma aparte: no se convierte.
 import { useId, useRef, useState, type FormEvent, type ReactNode, type Ref } from 'react'
+import { CampoFechaPasada, Opciones } from '../formularios.tsx'
 import { Marco } from '../Marco.tsx'
-import { fechaCorta, hoyEnElCelular, mayuscula, sumarDiasISO } from '../mi-dia/formato.ts'
+import { cuandoFue, fechaCorta, hoyEnElCelular, mayuscula } from '../mi-dia/formato.ts'
 import {
-  CATEGORIAS, LARGO, MONEDAS, TIPOS, cuandoFue, dinero, leerMonto, mesesVisibles, nombreDelMes, porDia, resumirMes, simbolo,
+  CATEGORIAS, LARGO, MONEDAS, TIPOS, dinero, leerMonto, mesesVisibles, nombreDelMes, porDia, resumirMes, simbolo,
   totalEnPalabras,
   type CambiosMovimiento, type Categoria, type EstadoBilletera, type Movimiento, type NuevoMovimiento, type ResumenMoneda, type Tipo,
 } from './useBilletera.ts'
@@ -20,28 +21,8 @@ export interface AccionesBilletera {
 const LISTA_CATEGORIAS = Object.keys(CATEGORIAS) as Categoria[]
 const MONTO_INVALIDO = 'Escribe cuánto fue: un número mayor que 0, como 150 o 150.50.'
 
-function Opciones({ opciones }: { opciones: Record<string, string> }) {
-  return <>{Object.entries(opciones).map(([valor, nombre]) => <option key={valor} value={valor}>{nombre}</option>)}</>
-}
-
 /** Las monedas de la app, más la del movimiento si es otra (la base acepta cualquier código). */
 const monedasPara = (actual: string) => (actual in MONEDAS ? MONEDAS : { ...MONEDAS, [actual]: actual })
-
-/** Fecha del movimiento con atajos para hoy y ayer. Vacío quiere decir hoy. */
-function CampoFecha({ id, valor, cambiar }: { id: string; valor: string; cambiar: (v: string) => void }) {
-  const hoy = hoyEnElCelular()
-  const ayer = sumarDiasISO(hoy, -1)
-  return (
-    <div className="campo">
-      <label htmlFor={id}>Fecha</label>
-      <input id={id} type="date" value={valor || hoy} max={hoy} onChange={(e) => cambiar(e.target.value === hoy ? '' : e.target.value)} />
-      <div className="atajos">
-        <button type="button" className="btn btn-q" aria-pressed={!valor || valor === hoy} onClick={() => cambiar('')}>Hoy</button>
-        <button type="button" className="btn btn-q" aria-pressed={valor === ayer} onClick={() => cambiar(ayer)}>Ayer</button>
-      </div>
-    </div>
-  )
-}
 
 function CampoMonto({ id, valor, cambiar, moneda, refCampo, autoFocus, alEnter }: {
   id: string
@@ -144,7 +125,7 @@ function Anotar({ acciones, enLinea }: { acciones: AccionesBilletera; enLinea: b
       <details className="mas">
         <summary>Fecha, moneda y detalle{marcas.length > 0 && <span className="marcas"> · {marcas.join(' · ')}</span>}</summary>
         <div className="fila">
-          <CampoFecha id={`${id}-fecha`} valor={fecha} cambiar={setFecha} />
+          <CampoFechaPasada id={`${id}-fecha`} valor={fecha} cambiar={setFecha} />
           <div className="campo">
             <label htmlFor={`${id}-moneda`}>Moneda</label>
             <select id={`${id}-moneda`} value={moneda} onChange={(e) => setMoneda(e.target.value)}><Opciones opciones={MONEDAS} /></select>

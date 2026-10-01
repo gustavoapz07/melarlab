@@ -1,6 +1,7 @@
 // Pantalla Pendientes: agregar en segundos, marcar como hecho, editar y borrar.
 // Agrupados por fecha límite: atrasados, hoy, próximos y sin fecha, más los hechos de las últimas dos semanas.
 import { useId, useRef, useState, type FormEvent, type ReactNode } from 'react'
+import { Opciones } from '../formularios.tsx'
 import { Marco } from '../Marco.tsx'
 import { fechaCorta, hoyEnElCelular, sumarDiasISO } from '../mi-dia/formato.ts'
 import {
@@ -21,10 +22,6 @@ function resumen(porHacer: number, atrasados: number): string {
   const base = `${porHacer} por hacer`
   if (!atrasados) return base
   return `${base}, ${atrasados} ${atrasados === 1 ? 'atrasado' : 'atrasados'}`
-}
-
-function Opciones<T extends string>({ opciones }: { opciones: Record<T, string> }) {
-  return <>{(Object.entries(opciones) as [T, string][]).map(([valor, nombre]) => <option key={valor} value={valor}>{nombre}</option>)}</>
 }
 
 /** Fecha límite con atajos para hoy y mañana. */

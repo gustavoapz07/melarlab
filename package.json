@@ -12,7 +12,8 @@
     "mi-dia": "node herramientas/mi-dia.js",
     "pendientes": "node herramientas/pendientes.js",
     "estudios": "node herramientas/estudios.js",
-    "billetera": "node herramientas/billetera.js"
+    "billetera": "node herramientas/billetera.js",
+    "descanso": "node herramientas/descanso.js"
   },
   "devDependencies": {
     "axe-core": "^4.13.0",

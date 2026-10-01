@@ -7,6 +7,9 @@ export const PREFIJOS = {
   pendientes: 'melarlab.pendientes.',
   estudios: 'melarlab.estudios.',
   billetera: 'melarlab.billetera.',
+  descanso: 'melarlab.descanso.',
+  gym: 'melarlab.gym.',
+  comidas: 'melarlab.comidas.',
 } as const
 
 export function leerGuardado(clave: string): unknown {
