@@ -287,6 +287,33 @@ export type Database = {
         }
         Relationships: []
       }
+      gym_plan: {
+        Row: {
+          actualizado: string
+          creado: string
+          dia: number
+          id: string
+          rutina: string
+          usuario_id: string
+        }
+        Insert: {
+          actualizado?: string
+          creado?: string
+          dia: number
+          id?: string
+          rutina: string
+          usuario_id?: string
+        }
+        Update: {
+          actualizado?: string
+          creado?: string
+          dia?: number
+          id?: string
+          rutina?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       lista_deseos: {
         Row: {
           actualizado: string

@@ -8,6 +8,8 @@ import { PantallaDescanso, type AccionesDescanso } from './descanso/Descanso.tsx
 import { META_HORAS, NOCHES_PARA_AVISAR, duracion, resumirSueno, useDescanso } from './descanso/useDescanso.ts'
 import { PantallaEstudios } from './estudios/Estudios.tsx'
 import { useEstudios } from './estudios/useEstudios.ts'
+import { PantallaGym, type AccionesGym } from './gym/Gym.tsx'
+import { cuentaDeLaSemana, resumirGym, useGym } from './gym/useGym.ts'
 import { Marco } from './Marco.tsx'
 import { fechaEnPalabras, hoyEnElCelular } from './mi-dia/formato.ts'
 import { Marca, MiDia } from './mi-dia/MiDia.tsx'
@@ -62,8 +64,8 @@ function lineaDeBilletera(billetera: AccionesBilletera, hoy: string, navegar: Na
   }
 }
 
-/** Las líneas de salud de Mi Día: cómo vengo durmiendo. Un módulo que nunca se usó no sale. */
-function lineasDeSalud(descanso: AccionesDescanso, hoy: string, navegar: Navegar) {
+/** Las líneas de salud de Mi Día: cómo vengo durmiendo y si hoy toca gym. Un módulo que nunca se usó no sale. */
+function lineasDeSalud(descanso: AccionesDescanso, gym: AccionesGym, hoy: string, navegar: Navegar) {
   const lineas: { modulo: string; texto: string; enlace: ReactNode }[] = []
   if (descanso.estado.tipo === 'listo' && descanso.estado.lista.length) {
     const r = resumirSueno(descanso.estado.lista, hoy)
@@ -75,15 +77,25 @@ function lineasDeSalud(descanso: AccionesDescanso, hoy: string, navegar: Navegar
       enlace: <Enlace a="/descanso" navegar={navegar}>{r.anoche ? 'Ver el descanso' : 'Anotar la noche'}</Enlace>,
     })
   }
+  if (gym.entrenos.tipo === 'listo' && gym.plan.tipo === 'listo' && (gym.entrenos.lista.length || gym.plan.lista.length)) {
+    const r = resumirGym(gym.entrenos.lista, gym.plan.lista, hoy)
+    const deHoy = r.hoy ? `Hoy entrenaste ${r.hoy.rutina}. ` : r.tocaHoy ? `Hoy toca ${r.tocaHoy}. ` : r.hayPlan ? 'Hoy descansas. ' : ''
+    lineas.push({
+      modulo: 'Gym',
+      texto: `${deHoy}Llevas ${cuentaDeLaSemana(r)}.`,
+      enlace: <Enlace a="/gym" navegar={navegar}>{r.tocaHoy && !r.hoy ? 'Anotar el entreno' : 'Ver el gym'}</Enlace>,
+    })
+  }
   return lineas
 }
 
 /** Mi Día real, de la tabla mi_dia, con los pendientes de hoy. Mientras no hay uno, una pantalla corta que explica por qué. */
-function PantallaMiDia({ usuario, pendientes, billetera, descanso, navegar, enLinea, nav, cuenta, aviso }: Comun & {
+function PantallaMiDia({ usuario, pendientes, billetera, descanso, gym, navegar, enLinea, nav, cuenta, aviso }: Comun & {
   usuario: string
   pendientes: AccionesPendientes
   billetera: AccionesBilletera
   descanso: AccionesDescanso
+  gym: AccionesGym
   navegar: Navegar
 }) {
   const { estado, recargar } = useMiDia(usuario)
@@ -102,7 +114,7 @@ function PantallaMiDia({ usuario, pendientes, billetera, descanso, navegar, enLi
           lista: deHoy.map((p) => ({ titulo: p.tarea, texto: p.notas ?? undefined, fuente: AREAS[p.area], cuando: cuandoVence(p, hoy) })),
           enlace: <Enlace a="/pendientes" navegar={navegar}>Ver todos los pendientes</Enlace>,
         }}
-        salud={lineasDeSalud(descanso, hoy, navegar)}
+        salud={lineasDeSalud(descanso, gym, hoy, navegar)}
         billetera={lineaDeBilletera(billetera, hoy, navegar)}
         avisos={(
           <Avisos enLinea={enLinea} aviso={aviso} sinConexion="Sin conexión. Lo que ves quedó guardado en el celular.">
@@ -175,6 +187,7 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
   const pendientes = usePendientes(usuario)
   const billetera = useBilletera(usuario)
   const descanso = useDescanso(usuario)
+  const gym = useGym(usuario)
   const nav = <NavModulos ruta={ruta} navegar={navegar} />
   const cuenta = (
     <>
@@ -215,6 +228,21 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
       />
     )
   }
+  if (ruta === '/gym') {
+    const listo = gym.entrenos.tipo === 'listo' && gym.plan.tipo === 'listo'
+    return (
+      <PantallaGym
+        acciones={gym}
+        enLinea={enLinea}
+        nav={nav}
+        cuenta={cuenta}
+        avisos={(
+          <Avisos enLinea={enLinea} aviso={aviso}
+            sinConexion={listo ? 'Sin conexión. Ves lo último guardado; para anotar hace falta internet.' : 'Sin conexión.'} />
+        )}
+      />
+    )
+  }
   if (ruta === '/estudios') {
     return <RutaEstudios usuario={usuario} enLinea={enLinea} nav={nav} cuenta={cuenta} aviso={aviso} />
   }
@@ -235,7 +263,7 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
     )
   }
   return (
-    <PantallaMiDia usuario={usuario} pendientes={pendientes} billetera={billetera} descanso={descanso} navegar={navegar} enLinea={enLinea} nav={nav} cuenta={cuenta} aviso={aviso} />
+    <PantallaMiDia usuario={usuario} pendientes={pendientes} billetera={billetera} descanso={descanso} gym={gym} navegar={navegar} enLinea={enLinea} nav={nav} cuenta={cuenta} aviso={aviso} />
   )
 }
 

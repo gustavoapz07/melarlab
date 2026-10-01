@@ -222,7 +222,7 @@ section.periodo{margin-top:36px}
 @media (hover:none){.chip:hover:not(:active):not([aria-pressed="true"]){background:none;color:var(--ink)}}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .chips:disabled .chip{cursor:not-allowed;opacity:.55}
-.mas .marcas{color:var(--ink)}
+.mas .marcas{color:var(--ink);white-space:pre} /* pre: el resumen es flex y se comería el espacio de adelante */
 .mas > * + .campo{margin-top:16px}
 .meses{display:flex;flex-wrap:wrap;gap:0 16px;margin:0 -8px}
 .meses .siguiente{margin-left:auto}
@@ -252,6 +252,20 @@ section.periodo{margin-top:36px}
 .barras .lbl{font-size:8px}
 .barras .lbl-hoy{fill:var(--ink)}
 .meta-linea{stroke:var(--ink3);stroke-dasharray:3 3}
+
+/* ---------- gym ---------- */
+.semana-gym{list-style:none;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;max-width:640px;margin-top:20px}
+.dia-gym{display:grid;justify-items:center;gap:6px;min-width:0;padding:8px 2px;border:1px solid var(--rule)}
+.dia-gym.hoy{border-color:var(--ink)}
+.dia-gym-n{font:400 11px/1 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--ink3)}
+.dia-gym.hoy .dia-gym-n{color:var(--ink)}
+.dia-gym-marca{display:grid;place-items:center;width:28px;height:28px;border:1.5px solid var(--ink4);font-size:16px;line-height:1}
+.dia-gym.toca .dia-gym-marca,.dia-gym.falto .dia-gym-marca{border-color:var(--ink)}
+.dia-gym.hecho .dia-gym-marca{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.dia-gym-r{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--ink2)}
+.dia-gym.descanso .dia-gym-r{color:var(--ink3)}
+.duracion .chips-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.anotar .atajos{margin-left:-8px}
 
 @media (max-width:640px){
  .wrap{padding:16px 16px 40px}

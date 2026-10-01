@@ -25,6 +25,7 @@ Los valores de las listas se guardan en minúscula y sin tildes; la app los mues
 | `estudios` | periodo, codigo, asignatura, creditos, estado, nota_final, notas | estado: pendiente, cursando, aprobada. Un código por usuario |
 | `billetera` | fecha, tipo, monto, moneda, categoria, descripcion | tipo: ingreso, gasto. categoria: comida, transporte, universidad, salud, entretenimiento, compras, servicios, trabajo, otro. moneda: código de 3 letras, HNL por defecto |
 | `gym` | fecha, rutina, duracion_min, notas | duración de 1 a 600 minutos |
+| `gym_plan` | dia, rutina | qué rutina toca cada día de la semana: 1 = lunes … 7 = domingo; un día sin fila es de descanso. Una sola rutina por día y por usuario (desde el 2026-10-01) |
 | `comidas` | fecha, momento, comida, casera, notas | momento: desayuno, almuerzo, cena, merienda |
 | `descanso` | fecha, me_dormi, me_desperte, horas_dormidas, calidad, notas | horas_dormidas se calcula sola y cruza la medianoche (23:30 a 06:00 da 6.50). calidad de 1 a 5 |
 | `lista_deseos` | producto, enlace, precio, precio_objetivo, moneda, prioridad, estado, notas | estado: quiero, comprado, descartado |

@@ -23,6 +23,7 @@ declare
     'estudios',     $v$(periodo, codigo, asignatura) values (1, 'PRB-001', 'Prueba RLS')$v$,
     'billetera',    $v$(fecha, tipo, monto, categoria) values (current_date, 'gasto', 150, 'comida')$v$,
     'gym',          $v$(fecha, rutina) values (current_date, 'Prueba RLS')$v$,
+    'gym_plan',     $v$(dia, rutina) values (1, 'Prueba RLS')$v$,
     'comidas',      $v$(fecha, momento, comida) values (current_date, 'almuerzo', 'Prueba RLS')$v$,
     'descanso',     $v$(fecha, me_dormi, me_desperte) values (current_date, '23:30', '06:00')$v$,
     'lista_deseos', $v$(producto) values ('Prueba RLS')$v$,
@@ -39,7 +40,9 @@ declare
     $v$insert into public.pendientes (tarea, estado) values ('x', 'olvidado')$v$,
     $v$insert into public.descanso (fecha, me_dormi, me_desperte, calidad) values (current_date, '23:00', '07:00', 7)$v$,
     $v$insert into public.estudios (periodo, codigo, asignatura, nota_final) values (1, 'X', 'x', 101)$v$,
-    $v$insert into public.gym (fecha, rutina, duracion_min) values (current_date, 'x', 0)$v$
+    $v$insert into public.gym (fecha, rutina, duracion_min) values (current_date, 'x', 0)$v$,
+    $v$insert into public.gym_plan (dia, rutina) values (8, 'x')$v$,
+    $v$insert into public.gym_plan (dia, rutina) values (2, '   ')$v$
   ];
   sql text;
 begin
@@ -48,7 +51,7 @@ begin
     raise exception 'Hace falta al menos un usuario en el proyecto para correr la prueba.';
   end if;
 
-  foreach t in array array['pendientes', 'estudios', 'billetera', 'gym', 'comidas', 'descanso', 'lista_deseos', 'clientes', 'contenido'] loop
+  foreach t in array array['pendientes', 'estudios', 'billetera', 'gym', 'gym_plan', 'comidas', 'descanso', 'lista_deseos', 'clientes', 'contenido'] loop
     valores := ejemplos ->> t;
 
     -- A agrega una fila sin decir de quién es: queda a su nombre.
@@ -137,6 +140,14 @@ begin
   if horas = 6.50 then bien := bien + 1; else mal := mal || format('23:30 a 06:00 dio %s horas', horas); end if;
   insert into public.descanso (fecha, me_dormi, me_desperte) values (current_date, '00:30', '07:15') returning horas_dormidas into horas;
   if horas = 6.75 then bien := bien + 1; else mal := mal || format('00:30 a 07:15 dio %s horas', horas); end if;
+
+  -- Plan de gym: un solo plan por día de la semana para cada usuario.
+  insert into public.gym_plan (dia, rutina) values (3, 'Pierna');
+  begin
+    insert into public.gym_plan (dia, rutina) values (3, 'Otra rutina el mismo día');
+    mal := mal || 'gym_plan: se aceptaron dos rutinas para el mismo día';
+  exception when unique_violation then bien := bien + 1;
+  end;
   reset role;
 
   raise exception 'RESULTADO: % bien, % mal%', bien, cardinality(mal),

@@ -13,7 +13,8 @@
     "pendientes": "node herramientas/pendientes.js",
     "estudios": "node herramientas/estudios.js",
     "billetera": "node herramientas/billetera.js",
-    "descanso": "node herramientas/descanso.js"
+    "descanso": "node herramientas/descanso.js",
+    "gym": "node herramientas/gym.js"
   },
   "devDependencies": {
     "axe-core": "^4.13.0",
