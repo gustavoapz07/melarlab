@@ -126,6 +126,8 @@ a.t:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-th
 .modulos a{display:inline-flex;align-items:center;min-height:44px;font:400 12px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;
  color:var(--ink3);text-decoration:none;border-bottom:2px solid transparent;margin-bottom:-1px}
 .modulos a:hover{color:var(--ink)}
+/* Con cuatro módulos, en celulares de 360 px la barra no cabía en una línea. */
+@media (max-width:380px){.modulos{gap:0 14px}}
 .modulos a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--ink)}
 main h1:focus{outline:none}
 .ver-mas{padding-top:4px;font:400 12px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em}

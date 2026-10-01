@@ -191,6 +191,8 @@ const dato = (p, bloque, dt) => textoDe(bloque.locator('.cap div').filter({ has:
   await p.setViewportSize({ width: 360, height: 780 });
   const desbordados = await p.locator('.chip').evaluateAll((bs) => bs.filter((b) => b.scrollWidth > b.clientWidth).map((b) => b.textContent));
   revisar(!desbordados.length, 'a 360 px, el nombre de cada categoría cabe en su botón', desbordados.join(', '));
+  const lineas = await p.locator('nav.modulos a').evaluateAll((as) => new Set(as.map((a) => Math.round(a.getBoundingClientRect().top))).size);
+  revisar(lineas === 1, 'a 360 px, la barra de módulos cabe en una línea', `${lineas} líneas`);
   await p.setViewportSize({ width: 390, height: 844 });
   await capturar(p, 'app-billetera-vacio');
 
