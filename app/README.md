@@ -46,7 +46,7 @@ app/
     ├── radar/
     │   ├── radar.ts           la forma del Radar, revisar lo que llega (normalizar) y leer los últimos 8 de la tabla radar
     │   └── Radar.tsx          la pantalla: novedades, para probar, idea de servicio y radares anteriores
-    ├── rutas.ts            direcciones de la app (/, /pendientes y /estudios) y el foco al cambiar de pantalla
+    ├── rutas.ts            las direcciones de cada pantalla (/, /pendientes, /billetera…) y el foco al cambiar de pantalla
     ├── navegacion.tsx      barra de módulos y enlaces entre pantallas
     ├── Marco.tsx           encabezado, barra y pie de las pantallas que no son Mi Día
     ├── guardado.ts         copias en el celular para ver sin internet; cerrar sesión las borra
