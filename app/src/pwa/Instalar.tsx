@@ -1,6 +1,7 @@
 // Invitación a instalar la app. Android (Chrome) ofrece su propio aviso; el iPhone no tiene aviso
 // automático, así que ahí se explica cómo hacerlo desde Safari.
 import { useEffect, useState } from 'react'
+import { esIPhone, yaInstalada } from './dispositivo.ts'
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>
@@ -24,12 +25,6 @@ function guardarOculto() {
     // Sin almacenamiento (modo privado): el aviso vuelve a salir la próxima vez.
   }
 }
-
-const yaInstalada = () =>
-  matchMedia('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone === true
-
-const esIPhone = () =>
-  /iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1)
 
 export function Instalar() {
   const [pedido, setPedido] = useState<BeforeInstallPromptEvent | null>(null)

@@ -16,6 +16,8 @@ Por ahora tiene cuentas (entrar, crear cuenta, recuperar la contraseña y cerrar
 - **Contenido** (`/contenido`): de la idea a la publicación. Cada pieza con su formato, sus redes, la fecha en que sale y el enlace; un toque la pasa a producción y otro la marca como publicada. Lo que toca publicar hoy va arriba y sale en Mi Día, que además guarda su idea del día en Contenido con un toque. Publicar se hace en cada red, con revisión.
 - **Estudios** (`/estudios`): el plan de estudios por período, con el estado de cada materia (pendiente, cursando o aprobada), la nota y el avance de la carrera. La primera vez carga con un botón el plan de Ingeniería en Sistemas Computacionales de UNITEC (2025: 17 períodos y 230 créditos); también se pueden agregar materias una por una.
 
+Además, el **aviso de Mi Día a las 6:00**: se activa en el pie de cualquier pantalla y llega al celular con web push aunque la app esté cerrada, con el titular del día. Si a las 6:30 Mi Día no llegó, otro aviso lo dice. En iPhone hace falta tener la app instalada ([docs/base-de-datos.md](../docs/base-de-datos.md#avisos)).
+
 Las pantallas de los demás módulos llegan en los siguientes pasos de la [hoja de ruta](../docs/hoja-de-ruta.md).
 
 ![Mi Día en la app, en el celular](../docs/capturas/app-mi-dia-390-light.png)
@@ -39,10 +41,14 @@ app/
 ├── index.html              metadatos, color de la barra y ícono de iPhone
 ├── .node-version          versión de Node para compilar en Cloudflare Pages
 ├── vite.config.ts          manifiesto, service worker y cabeceras de seguridad
-├── public/                 favicon e íconos (se generan con npm run iconos, desde la raíz)
+├── public/                 favicon e íconos (se generan con npm run iconos, desde la raíz) y avisos-sw.js,
+│                           que muestra los avisos que llegan y abre la app al tocarlos
 └── src/
     ├── main.tsx            arranque y fuentes
     ├── App.tsx             qué pantalla toca según la sesión y la dirección
+    ├── avisos/
+    │   ├── useAvisos.ts       el aviso de las 6:00 en este celular: permiso, suscripción, tabla avisos_push y apagarlo al cerrar sesión
+    │   └── AvisoDiario.tsx    su línea en el pie: activo o apagado, con el botón para cambiarlo
     ├── radar/
     │   ├── radar.ts           la forma del Radar, revisar lo que llega (normalizar) y leer los últimos 8 de la tabla radar
     │   └── Radar.tsx          la pantalla: novedades, para probar, idea de servicio y radares anteriores
@@ -100,6 +106,7 @@ app/
     └── pwa/
         ├── AvisoActualizacion.tsx   "Lista para usar sin internet" y "Hay una versión nueva"
         ├── Instalar.tsx             botón de instalar (Android) o instrucciones (iPhone)
+        ├── dispositivo.ts           si es iPhone y si la app está instalada
         └── useEnLinea.ts            aviso de sin conexión
 ```
 
@@ -160,6 +167,8 @@ npm run contenido -- http://localhost:4173  # anotar, toca publicar, producción
 npm run comidas -- http://localhost:4173    # qué hay de comer, anotar, cambiar, planear, hechas en casa, Mi Día y sin internet
 npm run gym -- http://localhost:4173        # armar el plan, hoy toca, anotar, deshacer, cambiar el plan, la semana, Mi Día y sin internet
 npm run estudios -- http://localhost:4173   # cargar el plan, aprobar y deshacer, cursando, notas, código repetido, errores y sin internet
+npm run avisos -- http://localhost:4173     # activar y apagar el aviso, errores, sin internet, cerrar sesión, bloqueado, iPhone y el service worker
+npm run webpush                             # cifrado (con el ejemplo del RFC 8291) y firma VAPID de los avisos, sin red
 npm run auditar -- http://localhost:4173    # accesibilidad WCAG 2.1 AA en claro y oscuro, a 390 y 1280 px
 npm run capturas -- http://localhost:4173 docs/capturas/app
 ```
@@ -180,6 +189,7 @@ Si Playwright no encuentra Chromium, se le indica el navegador instalado con `CH
 - **Billetera: anotar es escribir el monto y tocar la categoría.** La categoría es el botón de guardar; sin monto válido no se envía nada, y el aviso trae Deshacer. Lo opcional (fecha, moneda y detalle) va plegado, pero si la fecha no es hoy o la moneda no es lempiras, se ve en el resumen plegado.
 - **Cada moneda se suma aparte.** Los montos en dólares no se convierten a lempiras: el resumen muestra un bloque por moneda. Las sumas van en centavos enteros para no arrastrar errores de redondeo.
 - **Descanso: una noche por día.** La noche lleva la fecha del día en que me desperté. Si ese día ya tiene una, el formulario la muestra y guardar la cambia, en vez de crear otra.
+- **El aviso de las 6:00 lo decide la base.** La app solo guarda la suscripción del celular; la base decide qué mandar y la función de Supabase lo cifra y lo manda. Activarlo pide permiso al tocar el botón (nunca al abrir la app) y, si la base no guarda la suscripción, se deshace: no queda un celular suscrito que nunca recibiría nada. Al cerrar sesión se apaga en ese celular, aunque no haya internet.
 - **La barra de módulos se desplaza de lado** cuando no caben todos: la pantalla actual queda a la vista y un desvanecido en el borde avisa que hay más.
 - **Lista de deseos: de comprado a gasto en un toque.** Al marcar algo como comprado, el aviso ofrece anotarlo en la Billetera (en Compras, con el producto de detalle). Los enlaces a las tiendas se abren aparte y sin pasarles nada de la app (`noopener noreferrer`); la base solo acepta https.
 - **Clientes: "Contacté hoy" en un toque.** Anota el contacto, pasa el prospecto a contactado y propone el siguiente seguimiento en una semana, con Deshacer. Son datos de otras personas: viven solo en la base, con RLS, y se muestran como texto.

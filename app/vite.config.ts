@@ -101,6 +101,8 @@ export default defineConfig(({ mode }) => {
           globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
           navigateFallback: 'index.html',
           cleanupOutdatedCaches: true,
+          // Los avisos de las 6:00 (web push): mostrarlos y abrir la app al tocarlos (public/avisos-sw.js).
+          importScripts: ['avisos-sw.js'],
         },
       }),
     ],

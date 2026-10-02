@@ -19,7 +19,9 @@
     "deseos": "node herramientas/deseos.js",
     "clientes": "node herramientas/clientes.js",
     "contenido": "node herramientas/contenido.js",
-    "radar": "node herramientas/radar.js"
+    "radar": "node herramientas/radar.js",
+    "avisos": "node herramientas/avisos.js",
+    "webpush": "node herramientas/webpush.js"
   },
   "devDependencies": {
     "axe-core": "^4.13.0",

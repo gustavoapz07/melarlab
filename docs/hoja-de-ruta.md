@@ -23,7 +23,7 @@ Meta: una app vacía pero real, instalada en los dos celulares, con cuentas y la
 - [x] Llevar Mi Día a Supabase: una rutina de Claude Code lo publica cada mañana con un secreto que Claude no ve.
 - [x] Pantalla Mi Día con datos reales: atención, agenda, entregas, novedades de IA e idea de contenido, también sin internet.
 - [ ] Cambiar "brief mañanero" por "Mi Día" en la tarea programada.
-- [ ] Notificación de la mañana desde la app (web push).
+- [x] Aviso de Mi Día a las 6:00 desde la app (web push), y otro a las 6:30 si Mi Día no llegó.
 - [ ] Agenda: resumen de la semana y preparación de cada reunión dentro de Mi Día.
 
 ## Fase C · Pendientes y Estudios
@@ -40,7 +40,7 @@ Meta: una app vacía pero real, instalada en los dos celulares, con cuentas y la
 
 ## Fase F · El resto
 - [x] Lista de deseos, Clientes y Contenido.
-- [ ] Radar como pantalla de la app.
+- [x] Radar como pantalla de la app, publicado cada domingo por una rutina de Claude Code.
 
 ## Fase G · Abrir la app a otros
 - [ ] Mi Día para otros usuarios con la API de Claude, con tope de uso por usuario.

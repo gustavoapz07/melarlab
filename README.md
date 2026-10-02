@@ -47,7 +47,7 @@ melarlab/
 ├── modulos/
 │   ├── mi-dia/          render_brief.py, prompt de ejemplo y datos de prueba
 │   └── radar/           prompt de ejemplo
-├── supabase/            migraciones de la base de datos y prueba de seguridad (RLS)
+├── supabase/            migraciones de la base de datos, la función de los avisos y pruebas de seguridad
 ├── herramientas/        pruebas de la app, auditoría de accesibilidad, capturas e íconos
 └── docs/                módulos, base de datos, hoja de ruta, esquema original de la hoja y capturas
 ```

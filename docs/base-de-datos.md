@@ -1,8 +1,8 @@
 # La base de datos
 
-Los datos de la app viven en Supabase (Postgres). Hay una tabla por módulo, salida del esquema de la [hoja MelarLab](hoja-melarlab.md), que queda como antecedente, más `mi_dia`, donde la rutina de la mañana publica el resumen del día ([abajo](#mi-día)), y `radar`, donde la rutina de los domingos publica el Radar semanal ([abajo](#radar)). Agenda no tiene tabla: lee Google Calendar y Gmail.
+Los datos de la app viven en Supabase (Postgres). Hay una tabla por módulo, salida del esquema de la [hoja MelarLab](hoja-melarlab.md), que queda como antecedente, más `mi_dia`, donde la rutina de la mañana publica el resumen del día ([abajo](#mi-día)), `radar`, donde la rutina de los domingos publica el Radar semanal ([abajo](#radar)), y `avisos_push`, los celulares que reciben el aviso de las 6:00 ([abajo](#avisos)). Agenda no tiene tabla: lee Google Calendar y Gmail.
 
-Las migraciones están en [`supabase/migrations/`](../supabase/migrations/) y las pruebas de seguridad en [`supabase/pruebas/`](../supabase/pruebas/): `rls.sql` para las tablas de los módulos, `mi_dia.sql` para Mi Día y `radar.sql` para el Radar.
+Las migraciones están en [`supabase/migrations/`](../supabase/migrations/) y las pruebas de seguridad en [`supabase/pruebas/`](../supabase/pruebas/): `rls.sql` para las tablas de los módulos, `mi_dia.sql` para Mi Día, `radar.sql` para el Radar y `avisos.sql` para los avisos.
 
 ## Seguridad
 
@@ -61,10 +61,26 @@ El Radar semanal de IA se publica igual que Mi Día, con el mismo secreto: la ru
 - **`publicar_radar(datos)`:** pide el mismo secreto que `publicar_mi_dia()` (la huella está en `privado.publicadores_mi_dia`). Valida las claves, el tamaño (100 KB), las listas y una fecha de la última semana. Publicar otra vez la misma fecha reemplaza al anterior. El aviso de Supabase sobre esta función también es esperado.
 - **La app revisa lo que llega:** una novedad sin título no se dibuja, los enlaces que no son https quedan como texto y nada se interpreta como HTML.
 
+## Avisos
+
+El aviso de Mi Día llega al celular con web push, sin pasar por la app de Claude. De lunes a viernes, Cron llama a la función `avisos` ([`supabase/functions/avisos/`](../supabase/functions/avisos/)) a las 6:00 y a las 6:30 de Honduras:
+
+- **6:00:** si el Mi Día de hoy ya está, manda "Mi Día" con su titular.
+- **6:30:** si todavía no está, manda "Mi Día no llegó" a quien tiene la rutina (el aviso de monitoreo de la sección de seguridad).
+- **Un aviso por celular y por día:** lo que ya se mandó queda anotado en `ultimo_aviso`.
+
+Las piezas:
+
+- **`avisos_push`:** una fila por celular (o navegador) y por usuario: la dirección del servicio de push (`endpoint`) y las llaves del celular para cifrar (`p256dh`, `auth`). Cada usuario ve, agrega y borra solo las suyas; nadie las cambia (`ultimo_aviso` lo anota la función). Hasta 10 por usuario. Solo acepta los servicios de push de los navegadores (Google, Apple, Mozilla y Windows).
+- **`llave_avisos()`:** la llave pública VAPID, para que la app suscriba el celular. Solo con sesión.
+- **`avisos_por_enviar(secreto, ultimo_intento)`, `avisos_enviados(secreto, enviados, vencidos)` y `guardar_llaves_avisos(secreto, publica, privada)`:** las usa la función `avisos`, con la clave publicable y el secreto de los avisos en el cuerpo. Sin el secreto responden 401 "No autorizado.". La base decide qué mandar y a quién; la función solo cifra (RFC 8291), firma (VAPID, RFC 8292) y manda. Las suscripciones que el servicio de push da por vencidas (404 o 410) se borran. Los avisos de Supabase sobre estas funciones son esperados, como los de `publicar_mi_dia()`.
+- **Los secretos viven en el Vault de Supabase:** `melarlab_avisos` (el secreto de Cron, creado al azar dentro de la base: nadie lo conoce), las llaves VAPID (las crea la función la primera vez) y `project_url`. El secreto viaja en el cuerpo y no en una cabecera, para que no quede en los registros. La función no usa la llave secreta de Supabase.
+- **En los registros** de la función solo queda cuántos avisos salieron, nunca a qué dirección ni qué decían.
+
 ## Cambios
 
 Cada cambio de estructura es una migración nueva en `supabase/migrations/`, con la fecha y hora en el nombre. Después de aplicarla:
 
-1. Correr `supabase/pruebas/rls.sql`, `supabase/pruebas/mi_dia.sql` y `supabase/pruebas/radar.sql` en el editor SQL de Supabase. Terminan con un error a propósito, así no guardan nada, y el mensaje trae el resultado: todo tiene que salir bien.
+1. Correr `supabase/pruebas/rls.sql`, `supabase/pruebas/mi_dia.sql`, `supabase/pruebas/radar.sql` y `supabase/pruebas/avisos.sql` en el editor SQL de Supabase. Terminan con un error a propósito, así no guardan nada, y el mensaje trae el resultado: todo tiene que salir bien.
 2. Revisar los avisos de seguridad y de rendimiento de Supabase.
 3. Volver a generar los tipos de la app (`app/src/cuenta/base-de-datos.ts`).

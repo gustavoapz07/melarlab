@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react'
+import { AvisoDiario } from './avisos/AvisoDiario.tsx'
+import { useAvisos } from './avisos/useAvisos.ts'
 import { PantallaBilletera, type AccionesBilletera } from './billetera/Billetera.tsx'
 import { resumirMes, totalEnPalabras, useBilletera } from './billetera/useBilletera.ts'
 import { Entrada, NuevaContrasena } from './cuenta/Entrada.tsx'
@@ -271,11 +273,18 @@ function Dentro({ usuario, correo, aviso, enLinea, salir }: {
   const gym = useGym(usuario)
   const clientes = useClientes(usuario)
   const contenido = useContenido(usuario)
+  const avisos = useAvisos()
   const nav = <NavModulos ruta={ruta} navegar={navegar} />
+  // Al cerrar sesión, este celular deja de recibir el aviso de la cuenta (otra persona podría usarlo después).
+  const cerrarSesion = async () => {
+    await avisos.olvidar()
+    salir()
+  }
   const cuenta = (
     <>
       <span className="correo">{correo}</span>
-      <button type="button" className="btn btn-q" onClick={salir}>Cerrar sesión</button>
+      <button type="button" className="btn btn-q" onClick={cerrarSesion}>Cerrar sesión</button>
+      <AvisoDiario avisos={avisos} enLinea={enLinea} />
     </>
   )
 

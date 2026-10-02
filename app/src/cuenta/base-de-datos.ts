@@ -17,6 +17,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      avisos_push: {
+        Row: {
+          auth: string
+          creado: string
+          endpoint: string
+          id: string
+          p256dh: string
+          ultimo_aviso: string | null
+          usuario_id: string
+        }
+        Insert: {
+          auth: string
+          creado?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          ultimo_aviso?: string | null
+          usuario_id?: string
+        }
+        Update: {
+          auth?: string
+          creado?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          ultimo_aviso?: string | null
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       billetera: {
         Row: {
           actualizado: string
@@ -457,6 +487,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      avisos_enviados: {
+        Args: { enviados: string[]; secreto: string; vencidos: string[] }
+        Returns: number
+      }
+      avisos_por_enviar: {
+        Args: { secreto: string; ultimo_intento?: boolean }
+        Returns: Json
+      }
+      guardar_llaves_avisos: {
+        Args: { privada: string; publica: string; secreto: string }
+        Returns: boolean
+      }
+      llave_avisos: { Args: never; Returns: string }
       publicar_mi_dia: { Args: { datos: Json }; Returns: string }
       publicar_radar: { Args: { datos: Json }; Returns: string }
     }
